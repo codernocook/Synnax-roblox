@@ -652,11 +652,14 @@ local Synnax = {
             end
         },
         ["BetterFloat"] = {
-            ["ListName"] = "BetterFloat / BFloat",
+            ["ListName"] = "BetterFloat / BFloat [speed]",
             ["Description"] = "Fix Infinite yield Float",
             ["Aliases"] = {"betterfloat", "bfloat"},
             ["Function"] = function(args, speaker)
                 FloatEnabled = true
+                if args[1] then
+                    execCmd('tpwalk ' .. tostring(args[1]))
+                end
                 local plr = game:GetService("Players").LocalPlayer
                 local uis = game:GetService("UserInputService")
                 local char = plr.Character
@@ -937,6 +940,34 @@ local Synnax = {
                     end
                 else
                     notify("Notification", "You must set status for BetterGodMode [on/off]")
+                end
+            end
+        },
+        ["FlyTeleport"] = {
+            ["ListName"] = "FlyTeleport / Flytp [speed]",
+            ["Description"] = "Make you freeze and will teleport you after fly",
+            ["Aliases"] = {"FlyTeleport", "Flytp", "flyteleport", "flytp"},
+            ["Function"] = function(args, speaker)
+                if speaker.Character and speaker.Character:FindFirstChild("Head") then
+                    local Head = speaker.Character:FindFirstChild("Head")
+                    Head.Anchored = true
+                    if args[1] then
+                        execCmd("BetterFloat " .. tostring(args[1]))
+                    else
+                        execCmd("BetterFloat")
+                    end
+                end
+            end
+        },
+        ["UnFlyTeleport"] = {
+            ["ListName"] = "UnFlyTeleport / UnFlytp [speed]",
+            ["Description"] = "Make you freeze and will teleport you after fly",
+            ["Aliases"] = {"UnFlyTeleport", "UnFlytp", "unflyteleport", "unflytp"},
+            ["Function"] = function(args, speaker)
+                if speaker.Character and speaker.Character:FindFirstChild("Head") then
+                    local Head = speaker.Character:FindFirstChild("Head")
+                    Head.Anchored = false
+                    execCmd("UnBetterFloat")
                 end
             end
         },
