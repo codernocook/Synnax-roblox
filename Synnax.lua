@@ -908,11 +908,14 @@ local Synnax = {
                                             if BetterGodModeRespawnCheck == false then
                                                 BetterGodModeRespawnCheck = true
                                                 local oldrespawnpos = speaker.Character:GetPivot()
+                                                local oldcameracframe = game:GetService("Workspace").CurrentCamera.CFrame
                                                 task.wait(game:GetService("Players").RespawnTime - 0.1)
                                                 oldrespawnpos = speaker.Character:GetPivot()
+                                                oldcameracframe = game:GetService("Workspace").CurrentCamera.CFrame
                                                 task.wait(0.2)
-                                                if speaker.Character and speaker.Character:FindFirstChildWhichIsA("Humanoid") then else return end
+                                                if speaker.Character and game:GetService("Workspace").CurrentCamera and speaker.Character:FindFirstChildWhichIsA("Humanoid") then else return end
                                                 speaker.Character:PivotTo(oldrespawnpos)
+                                                game:GetService("Workspace").CurrentCamera.CFrame = oldcameracframe
                                                 BetterGodModeRespawnCheck = false
                                             end
                                         end
