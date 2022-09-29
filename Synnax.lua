@@ -658,11 +658,9 @@ local Synnax = {
             ["Function"] = function(args, speaker)
                 FloatEnabled = true
                 if args[1] then
-                    execCmd('tpwalk ' .. tostring(args[1]))
+                    execCmd('tpwalk ' .. tostring((tonumber(args[1]) / 100)))
                 end
-                local plr = game:GetService("Players").LocalPlayer
                 local uis = game:GetService("UserInputService")
-                local char = plr.Character
                 local Tpwalkspeed = 50
                 local Float = Instance.new("Part", speaker.Character)
                     Float.Name = "BetterFloat.."
