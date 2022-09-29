@@ -952,7 +952,7 @@ local Synnax = {
                     if args[1] then
                         execCmd("BetterFloat " .. tostring(args[1]))
                     else
-                        execCmd("BetterFloat")
+                        execCmd("BetterFloat 20")
                     end
                 end
             end
@@ -966,6 +966,8 @@ local Synnax = {
                     local Head = speaker.Character:FindFirstChild("Head")
                     Head.Anchored = false
                     execCmd("UnBetterFloat")
+                    execCmd("tpwalk 0")
+                    execCmd("untpwalk")
                 end
             end
         },
