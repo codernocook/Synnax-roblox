@@ -911,14 +911,14 @@ local Synnax = {
                                                 local oldrespawnpos = speaker.Character:GetPivot()
                                                 local oldcameracframe = game:GetService("Workspace").CurrentCamera.CFrame
                                                 task.wait(game:GetService("Players").RespawnTime - 0.1)
-                                                oldrespawnpos = speaker.Character:GetPivot()
+                                                oldrespawnpos = getRoot(speaker.Character).CFrame
                                                 oldcameracframe = game:GetService("Workspace").CurrentCamera.CFrame
                                                 task.wait(0.15)
-                                                oldrespawnpos = speaker.Character:GetPivot()
+                                                oldrespawnpos = getRoot(speaker.Character).CFrame
                                                 oldcameracframe = game:GetService("Workspace").CurrentCamera.CFrame
                                                 task.wait(0.05)
-                                                repeat task.wait() until speaker.Character and game:GetService("Workspace").CurrentCamera and speaker.Character:FindFirstChildWhichIsA("Humanoid")
-                                                speaker.Character:PivotTo(oldrespawnpos)
+                                                repeat task.wait() until speaker.Character and game:GetService("Workspace").CurrentCamera and speaker.Character:FindFirstChildWhichIsA("Humanoid") and getRoot(speaker.Character)
+                                                getRoot(speaker.Character).CFrame = oldrespawnpos
                                                 game:GetService("Workspace").CurrentCamera.CFrame = oldcameracframe
                                                 BetterGodModeRespawnCheck = false
                                             end
