@@ -913,10 +913,10 @@ local Synnax = {
                                                 task.wait(game:GetService("Players").RespawnTime - 0.1)
                                                 oldrespawnpos = getRoot(speaker.Character).CFrame
                                                 oldcameracframe = game:GetService("Workspace").CurrentCamera.CFrame
-                                                task.wait(0.15)
+                                                task.wait(0.1)
                                                 oldrespawnpos = getRoot(speaker.Character).CFrame
                                                 oldcameracframe = game:GetService("Workspace").CurrentCamera.CFrame
-                                                task.wait(0.05)
+                                                task.wait(0.15)
                                                 if not speaker.Character and game:GetService("Workspace").CurrentCamera and getRoot(speaker.Character) then return end
                                                 getRoot(speaker.Character).CFrame = oldrespawnpos
                                                 game:GetService("Workspace").CurrentCamera.CFrame = oldcameracframe
