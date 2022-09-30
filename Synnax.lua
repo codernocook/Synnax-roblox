@@ -914,17 +914,17 @@ local Synnax = {
                                                 local oldrespawnpos = speaker.Character:GetPivot()
                                                 local oldcameracframe = game:GetService("Workspace").CurrentCamera.CFrame
                                                 task.wait(game:GetService("Players").RespawnTime - 0.1)
-                                                oldrespawnpos = getRoot(speaker.Character).CFrame
+                                                oldrespawnpos = speaker.Character:GetPivot()
                                                 oldcameracframe = game:GetService("Workspace").CurrentCamera.CFrame
                                                 task.wait(0.1)
-                                                oldrespawnpos = getRoot(speaker.Character).CFrame
+                                                oldrespawnpos = speaker.Character:GetPivot()
                                                 oldcameracframe = game:GetService("Workspace").CurrentCamera.CFrame
-                                                task.wait(0.1)
-                                                repeat task.wait() until speaker.Character and game:GetService("Workspace").CurrentCamera and getRoot(speaker.Character)
-                                                getRoot(speaker.Character).Anchored = true
-                                                getRoot(speaker.Character).CFrame = oldrespawnpos
+                                                task.wait(0.2)
+                                                repeat task.wait() until speaker.Character and game:GetService("Workspace").CurrentCamera
+                                                speaker.Character:PivotTo(oldrespawnpos)
                                                 game:GetService("Workspace").CurrentCamera.CFrame = oldcameracframe
-                                                getRoot(speaker.Character).Anchored = false
+                                                speaker.Character:PivotTo(oldrespawnpos)
+                                                game:GetService("Workspace").CurrentCamera.CFrame = oldcameracframe
                                                 BetterGodModeRespawnCheck = false
                                             end
                                         end
