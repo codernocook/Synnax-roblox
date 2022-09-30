@@ -849,7 +849,7 @@ local Synnax = {
                                                         local OldPos = AnotherHumanoidRootPart.Position
                                                         task.wait(1)
                                                         local NewPos = AnotherHumanoidRootPart.Position
-                                                        if (NewPos - OldPos).Magnitude > (Humanoid.WalkSpeed + 55) and allchars:FindFirstChildWhichIsA("Humanoid").Sit == false then
+                                                        if (NewPos - OldPos).Magnitude > (Humanoid.WalkSpeed + 25) and allchars:FindFirstChildWhichIsA("Humanoid").Sit == false and not allchars:FindFirstChildWhichIsA("ForceField") then
                                                             notify("HackerDetector", "User: " .. tostring(allplrs.Name) .. ", Display: " .. tostring(allplrs.DisplayName) .. "\n Speed, Teleport Cheating, Type: MagnitudeDetect")
                                                         end
                                                     end)
