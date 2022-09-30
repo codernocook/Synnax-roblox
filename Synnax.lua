@@ -904,8 +904,11 @@ local Synnax = {
                             if speaker.Character and speaker.Character:FindFirstChildWhichIsA("Humanoid") then
                                 BetterGodModeConnection = game:GetService("RunService").RenderStepped:Connect(function()
                                     if speaker.Character:FindFirstChildWhichIsA("Humanoid") then
+                                        speaker.Character:FindFirstChildWhichIsA("Humanoid").BreakJointsOnDeath = false
                                         speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.Dead, false)
                                         if speaker.Character:FindFirstChildWhichIsA("Humanoid").Health <= 0 then
+                                            speaker.Character:FindFirstChildWhichIsA("Humanoid").BreakJointsOnDeath = false
+                                            speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.Dead, false)
                                             if BetterGodModeRespawnCheck == false then
                                                 BetterGodModeRespawnCheck = true
                                                 local oldrespawnpos = speaker.Character:GetPivot()
@@ -916,7 +919,7 @@ local Synnax = {
                                                 task.wait(0.1)
                                                 oldrespawnpos = getRoot(speaker.Character).CFrame
                                                 oldcameracframe = game:GetService("Workspace").CurrentCamera.CFrame
-                                                task.wait(0.3)
+                                                task.wait(0.2)
                                                 if not speaker.Character and game:GetService("Workspace").CurrentCamera and getRoot(speaker.Character) then return end
                                                 getRoot(speaker.Character).CFrame = oldrespawnpos
                                                 game:GetService("Workspace").CurrentCamera.CFrame = oldcameracframe
