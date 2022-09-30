@@ -916,9 +916,6 @@ local Synnax = {
                                                 task.wait(game:GetService("Players").RespawnTime - 0.1)
                                                 oldrespawnpos = speaker.Character:GetPivot()
                                                 oldcameracframe = game:GetService("Workspace").CurrentCamera.CFrame
-                                                task.wait(0.1)
-                                                oldrespawnpos = speaker.Character:GetPivot()
-                                                oldcameracframe = game:GetService("Workspace").CurrentCamera.CFrame
                                                 task.wait(0.2)
                                                 repeat task.wait() until speaker.Character and game:GetService("Workspace").CurrentCamera
                                                 speaker.Character:PivotTo(oldrespawnpos)
