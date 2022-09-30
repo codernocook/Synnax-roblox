@@ -913,7 +913,10 @@ local Synnax = {
                                                 task.wait(game:GetService("Players").RespawnTime - 0.1)
                                                 oldrespawnpos = speaker.Character:GetPivot()
                                                 oldcameracframe = game:GetService("Workspace").CurrentCamera.CFrame
-                                                task.wait(0.2)
+                                                task.wait(0.15)
+                                                oldrespawnpos = speaker.Character:GetPivot()
+                                                oldcameracframe = game:GetService("Workspace").CurrentCamera.CFrame
+                                                task.wait(0.05)
                                                 repeat task.wait() until speaker.Character and game:GetService("Workspace").CurrentCamera and speaker.Character:FindFirstChildWhichIsA("Humanoid")
                                                 speaker.Character:PivotTo(oldrespawnpos)
                                                 game:GetService("Workspace").CurrentCamera.CFrame = oldcameracframe
