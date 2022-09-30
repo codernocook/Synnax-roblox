@@ -917,7 +917,7 @@ local Synnax = {
                                                 oldrespawnpos = getRoot(speaker.Character).CFrame
                                                 oldcameracframe = game:GetService("Workspace").CurrentCamera.CFrame
                                                 task.wait(0.05)
-                                                repeat task.wait() until speaker.Character and game:GetService("Workspace").CurrentCamera and speaker.Character:FindFirstChildWhichIsA("Humanoid") and getRoot(speaker.Character)
+                                                if not speaker.Character and game:GetService("Workspace").CurrentCamera and getRoot(speaker.Character) then return end
                                                 getRoot(speaker.Character).CFrame = oldrespawnpos
                                                 game:GetService("Workspace").CurrentCamera.CFrame = oldcameracframe
                                                 BetterGodModeRespawnCheck = false
