@@ -147,16 +147,28 @@ local Synnax = {
                 end)
             end
         },
-        ["ResetTp"] = {
-            ["ListName"] = "resetp / resettp / reback",
+        ["ResetTeleport"] = {
+            ["ListName"] = "resetp / resettp / reback [on/off]",
             ["Description"] = "Reset you and teleport to the last click position, may bypass some anti cheat",
             ["Aliases"] = {"resettp", "resetp", "reback"},
             ["Function"] = function(args, speaker)
                 task.spawn(function()
-                    if ResetTeleportEnabled == true then
-                        notify("Notification", "ResetTeleport already turned on!")
+                    if args[1] then
+                        if args[1] == "on" then
+                            if ResetTeleportEnabled == true then
+                                notify("Notification", "ResetTeleport already turned on!")
+                            else
+                                ResetTeleportEnabled = true
+                            end
+                        elseif args[1] == "off" then
+                            if ResetTeleportEnabled == false then
+                                notify("Notification", "ResetTeleport already turned off!")
+                            else
+                                ResetTeleportEnabled = false
+                            end
+                        end
                     else
-                        ResetTeleportEnabled = true
+                        notify("Notification", "You must set the status for ResetTeleport [on/off]")
                     end
                 end)
             end
