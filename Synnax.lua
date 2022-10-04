@@ -692,7 +692,7 @@ local Synnax = {
                     game:GetService("RunService").Heartbeat:Connect(function()
                         Float.CFrame = getRoot(speaker.Character).CFrame * CFrame.new(0, FloatValue, 0)
                         if speaker.Character and speaker.Character:FindFirstChildWhichIsA("Humanoid") then
-                            if speaker.Character:FindFirstChildWhichIsA("Humanoid").RigType == Enum.RigType.R15 or speaker.Character:FindFirstChildWhichIsA("Humanoid").RigType == Enum.RigType.Rthro then
+                            if speaker.Character:FindFirstChildWhichIsA("Humanoid").RigType == Enum.HumanoidRigType.R15 then
                                 for _, v in ipairs(speaker.Character:GetDescendants()) do
                                     if v.IsA(v, "BasePart") then
                                         v.Velocity = Vector3.new(0, 0, 0)
