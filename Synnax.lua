@@ -675,40 +675,16 @@ local Synnax = {
                 local uis = game:GetService("UserInputService")
                 local Tpwalkspeed = 50
                 local Float = Instance.new("Part", speaker.Character)
-                local OldBaseVelocity = nil
-                local OldBaseRotVelocity = nil
-                    Float.Name = "BetterFloat.."
+                    Float.Name = randomString()
                     Float.Transparency = 1
                     Float.Size = Vector3.new(2,0.2,1.5)
                     Float.Anchored = true
                     local FloatValue = -3.1
                     Float.CFrame = getRoot(speaker.Character).CFrame * CFrame.new(0, FloatValue, 0)
-                    for _, v in ipairs(speaker.Character:GetDescendants()) do
-                        if v.IsA(v, "BasePart") then
-                            OldBaseVelocity = v.Velocity
-                            OldBaseRotVelocity = v.RotVelocity
-                        end
-                    end
                     game:GetService("RunService").Heartbeat:Connect(function()
                         Float.CFrame = getRoot(speaker.Character).CFrame * CFrame.new(0, FloatValue, 0)
-                        if speaker.Character and speaker.Character:FindFirstChildWhichIsA("Humanoid") then
-                            if speaker.Character:FindFirstChildWhichIsA("Humanoid").RigType == Enum.HumanoidRigType.R15 then
-                                for _, v in ipairs(speaker.Character:GetDescendants()) do
-                                    if v.IsA(v, "BasePart") then
-                                        v.Velocity = Vector3.new(0, 0, 0)
-                                        v.RotVelocity = Vector3.new(0, 0, 0)
-                                    end
-                                end
-                            end
-                        end
                         if FloatEnabled == false then
                             Float:Destroy()
-                            for _, v in ipairs(speaker.Character:GetDescendants()) do
-                                if v.IsA(v, "BasePart") then
-                                    v.Velocity = OldBaseVelocity
-                                    v.RotVelocity = OldBaseRotVelocity
-                                end
-                            end
                         end
                     end)
                 task.spawn(function()
