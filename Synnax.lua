@@ -179,23 +179,27 @@ local Synnax = {
             ["Aliases"] = {"flag", "fakelag"},
             ["Function"] = function(args, speaker)
                task.spawn(function()
-                    notify("Notification", "Start lag")
+                    notify("Notification", "Start fake lagging")
                     FakeLagEnabled = true
                     speaker.Character.Animate.Disabled = true
                     if args[1] and tonumber(args[1]) then
                         repeat task.wait(tonumber(args[1]))
-                            execCmd('replicationlag ' .. tonumber(args[1]))
+                            if (not tonumber(args[1])) then
+                                game:GetService("NetworkClient"):SetOutgoingKBPSLimit(-9999)
+                            else
+                                game:GetService("NetworkClient"):SetOutgoingKBPSLimit(0 - args[1])
+                            end
                             task.wait(5)
-                            execCmd('replicationlag ' .. 0)
+                            game:GetService("NetworkClient"):SetOutgoingKBPSLimit(math.huge())
                             if FakeLagEnabled == false then
                                 break
                             end
                         until FakeLagEnabled == false
                     else
                         repeat task.wait(5)
-                            execCmd('replicationlag 5')
+                            game:GetService("NetworkClient"):SetOutgoingKBPSLimit(-9999)
                             task.wait(5)
-                            execCmd('replicationlag 0')
+                            game:GetService("NetworkClient"):SetOutgoingKBPSLimit(math.huge())
                             if FakeLagEnabled == false then
                                 break
                             end
@@ -209,11 +213,11 @@ local Synnax = {
             ["Description"] = "Turn off fake lag movement",
             ["Aliases"] = {"unflag", "Unfakelag"},
             ["Function"] = function(args, speaker)
-                notify("Notification", "Stop lag")
+                notify("Notification", "Stop fake lagging")
                 FakeLagEnabled = false
-                execCmd('replicationlag 0')
+                game:GetService("NetworkClient"):SetOutgoingKBPSLimit(math.huge())
                 speaker.Character.Animate.Disabled = false
-                execCmd('replicationlag 0')
+                game:GetService("NetworkClient"):SetOutgoingKBPSLimit(math.huge())
             end
         },
         ["ConsoleSpam"] = {
