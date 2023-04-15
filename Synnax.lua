@@ -870,14 +870,14 @@ local Synnax = {
                             
                                                 if allchars:FindFirstChildWhichIsA("Humanoid") then
                                                     if allchars:WaitForChild("Humanoid").PlatformStand == true then
-                                                        notify("HackerDetector", "User: " .. tostring(allplrs.Name) .. ", Display: " .. tostring(allplrs.DisplayName) .. "\n Fly Cheating, Type: Normal")
+                                                        notify("HackerDetector", "User: " .. tostring(allplrs.Name) .. ", Display: " .. tostring(allplrs.DisplayName) .. "\n Fly Cheating, Type: FlatformStanding")
                                                     end
                                                 end
                                                 if char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso") then
                                                     if char:FindFirstChild("Torso") and char:FindFirstChild("Torso").CanCollide == false and char:FindFirstChild("Torso").CollisionGroupId == 0 and not char:FindFirstChild("UpperTorso") then
-                                                        notify("HackerDetector", "User: " .. tostring(allplrs.Name) .. ", Display: " .. tostring(allplrs.DisplayName) .. "\n Noclip, Type: Normal")
+                                                        notify("HackerDetector", "User: " .. tostring(allplrs.Name) .. ", Display: " .. tostring(allplrs.DisplayName) .. "\n Noclip, Type: CanCollide")
                                                     elseif not char:FindFirstChild("Torso") and char:FindFirstChild("UpperTorso") and char:FindFirstChild("UpperTorso").CanCollide == false and char:FindFirstChild("UpperTorso").CollisionGroupId == 0 then
-                                                        notify("HackerDetector", "User: " .. tostring(allplrs.Name) .. ", Display: " .. tostring(allplrs.DisplayName) .. "\n Noclip, Type: Normal")
+                                                        notify("HackerDetector", "User: " .. tostring(allplrs.Name) .. ", Display: " .. tostring(allplrs.DisplayName) .. "\n Noclip, Type: CanCollide")
                                                     end
                                                 end
                                             end
@@ -937,8 +937,14 @@ local Synnax = {
                                                 task.wait(0.1)
                                                 repeat task.wait() until speaker.Character and game:GetService("Workspace").CurrentCamera
                                                 speaker.Character:PivotTo(oldrespawnpos)
+                                                if (speaker.Character and speaker.Character:FindFirstChild("HumanoidRootPart")) then
+                                                    speaker.Character:FindFirstChild("HumanoidRootPart").Position = speaker.Character:FindFirstChild("HumanoidRootPart").Position
+                                                end
                                                 game:GetService("Workspace").CurrentCamera.CFrame = oldcameracframe
                                                 speaker.Character:PivotTo(oldrespawnpos)
+                                                if (speaker.Character and speaker.Character:FindFirstChild("HumanoidRootPart")) then
+                                                    speaker.Character:FindFirstChild("HumanoidRootPart").Position = speaker.Character:FindFirstChild("HumanoidRootPart").Position
+                                                end
                                                 game:GetService("Workspace").CurrentCamera.CFrame = oldcameracframe
                                                 speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
                                                 speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.PlatformStanding, false)
