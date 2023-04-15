@@ -449,6 +449,7 @@ local Synnax = {
                                             task.wait(.05)
                                             getRoot(speaker.Character).CFrame = CFrame.new(flingplrcframe.X, flingplrcframe.Y - 1, flingplrcframe.Z)
                                             getRoot(speaker.Character).CFrame = CFrame.new(flingplrcframe.X, flingplrcframe.Y - 1, flingplrcframe.Z)
+                                            getRoot(speaker.Character).CFrame = flingplrcframe.CFrame * flingplrcframe.Velocity/4.3
                                         end
                                     end)
                                 end)
@@ -912,6 +913,7 @@ local Synnax = {
                     if tostring(args[1]):lower() == "on" then
                         if BetterGodModeEnabled == false then
                             BetterGodModeEnabled = true
+                            local sureRagdoll = false;
                             notify("Notification", "You are god now!")
                             if speaker.Character and speaker.Character:FindFirstChildWhichIsA("Humanoid") then
                                 BetterGodModeConnection = game:GetService("RunService").RenderStepped:Connect(function()
@@ -921,6 +923,8 @@ local Synnax = {
                                         if speaker.Character:FindFirstChildWhichIsA("Humanoid").Health <= 0 then
                                             speaker.Character:FindFirstChildWhichIsA("Humanoid").BreakJointsOnDeath = false
                                             speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.Dead, false)
+                                            speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.PlatformStanding, true)
+                                            speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
                                             if BetterGodModeRespawnCheck == false then
                                                 BetterGodModeRespawnCheck = true
                                                 local oldrespawnpos = speaker.Character:GetPivot()
@@ -937,6 +941,8 @@ local Synnax = {
                                                 speaker.Character:PivotTo(oldrespawnpos)
                                                 game:GetService("Workspace").CurrentCamera.CFrame = oldcameracframe
                                                 speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
+                                                speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.PlatformStanding, false)
+                                                speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
                                                 BetterGodModeRespawnCheck = false
                                             end
                                         end
