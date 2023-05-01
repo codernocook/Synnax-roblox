@@ -888,7 +888,7 @@ local Synnax = {
                                     if HackerDetectorEnabled == true then
                                         for plrcount, allplrs in pairs(game:GetService("Players"):GetPlayers()) do
                                             local allchars = allplrs.Character or allplrs.CharacterAdded
-                                            if allplrs ~= nil then
+                                            if allplrs ~= game:GetService("Players").LocalPlayer then
                                                 if allchars and getRoot(allchars) and allchars:FindFirstChildWhichIsA("Humanoid") then
                                                     task.spawn(function()
                                                         local AnotherHumanoidRootPart = getRoot(allchars)
