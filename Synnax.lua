@@ -18,12 +18,16 @@ local HackerDetectorConnection = nil
 local Humanoid = char:FindFirstChildWhichIsA("Humanoid")
 local Mouse = plr:GetMouse()
 local alreadyreported = {}
+local hackerreported = {}
 
 local badwordsreport = {
     ["gay"] = "Bullying",
     ["gays"] = "Bullying",
     ["gae"] = "Bullying",
     ["gey"] = "Bullying",
+    ["furry"] = "Bullying",
+    ["furries"] = "Bullying",
+    ["furr"] = "Bullying",
     ["hack"] = "Scamming",
     ["exploit"] = "Scamming",
     ["cheat"] = "Scamming",
@@ -565,7 +569,7 @@ local Synnax = {
                         end
                     end
                 else
-                    notify("Notification", "Invaild player")
+                    notify("Notification", "Invalid player")
                 end
             end
         },
@@ -631,39 +635,63 @@ local Synnax = {
             end
         },
         ["ForceGiveTool"] = {
-            ["ListName"] = "ForceGiveTool / fgivetool",
+            ["ListName"] = "ForceGiveTool / fgivetool / bettergive / bgive",
             ["Description"] = "Remove your humanoid to forcegivetool player",
             ["Aliases"] = {"forcegiveTool", "fgivetool"},
             ["Function"] = function(args, speaker)
                 if speaker and speaker.Character and speaker.Character:FindFirstChildWhichIsA("Humanoid") and args[1] and args[2] then
                     local GetGiveToolPlayer = getPlayer(tostring(args[1]))
                     local ToolGive = tostring(args[2])
-                    for playercheckcount, playerinpairs in pairs(GetGiveToolPlayer) do
-                        local GiveToolPlayer = nil
-                        if Players:FindFirstChild(playerinpairs) then
-                            GiveToolPlayer = Players:FindFirstChild(playerinpairs)
-                        else
-                            GiveToolPlayer = nil
+
+                    if (GetGiveToolPlayer == nil) then return notify("Notification", "Please type a valid player.") end;
+                    if (ToolGive == nil) then return notify("Notification", "Please type a valid tool and make sure the tool have handle.") end;
+
+                    if (char:FindFirstChildWhichIsA("Humanoid")) then
+                        if (not char) then return notify("Notification", "Character not found") end;
+                        if (char:FindFirstChild(ToolGive) and plr.Backpack:FindFirstChild(ToolGive)) then return notify("Notification", "Tool given not found / not exist") end;
+
+                        if (plr.Backpack:FindFirstChild(ToolGive)) then
+                            if (not char) then return notify("Notification", "Character not found") end;
+                            plr.Backpack:FindFirstChild(ToolGive).Parent = char;
                         end
-                        speaker.Character:FindFirstChildWhichIsA("Humanoid"):Destroy()
-                        Instance.new("Humanoid", speaker.Character)
-                        local ToolGiveLocation = nil
-                            if speaker and speaker.Backpack and speaker.Backpack:FindFirstChild(ToolGive) then
-                                ToolGiveLocation = speaker.Backpack:FindFirstChild(ToolGive)
-                            elseif speaker and speaker.Character and speaker.Character:FindFirstChild(ToolGive) then
-                                ToolGiveLocation = speaker.Character:FindFirstChild(ToolGive)
+
+                        char:FindFirstChildWhichIsA("Humanoid"):Destroy();
+
+                            if (GetGiveToolPlayer == nil) then return notify("Notification", "Please type a valid player.") end;
+
+                            if (GetGiveToolPlayer.Character) then
+                                local givenChar = GetGiveToolPlayer.Character;
+
+                                if (givenChar:FindFirstChild("HumanoidRootPart")) then
+                                    if (char:FindFirstChild("HumanoidRootPart")) then
+                                        local oldCframe = char:FindFirstChild("HumanoidRootPart").CFrame;
+
+                                        local loopHeartbeat = game:GetService("RunService").Heartbeat:Connect(function()
+                                            char:FindFirstChild("HumanoidRootPart").CFrame = givenChar:FindFirstChild("HumanoidRootPart").CFrame * CFrame.new(0, 0, -.5);
+                                        end)
+
+                                        task.wait(2)
+                                        
+                                        loopHeartbeat:Disconnect();
+                                        loopHeartbeat = nil;
+
+                                        repeat task.wait() until not char;
+                                        char = plr.Character or plr.CharacterAdded;
+
+                                        if (char:FindFirstChild("HumanoidRootPart")) then
+                                            char:FindFirstChild("HumanoidRootPart").CFrame = oldCframe;
+                                        end
+                                    else
+                                        notify("Notification", "You must have a HumanoidRootPart to give player tool")
+                                    end
+                                else
+                                    notify("Notification", "HumanoidRootPart of the given player is not exist");
+                                end
+                            else
+                                return notify("Notification", "The player given doesn't have a valid character");
                             end
-                            if ToolGiveLocation then
-                                ToolGiveLocation.Parent = speaker.Character
-                                local oldposbeforegoto = getRoot(speaker.Character).CFrame
-                                execCmd('noclip')
-                                execCmd('loopgoto ' .. GiveToolPlayer.Name .. "0 0")
-                                execCmd('unnoclip')
-                                task.wait(.5)
-                                respawn(speaker)
-                                task.wait(tonumber(Players.RespawnTime) + 0.1)
-                                getRoot(speaker.Character).CFrame = oldposbeforegoto
-                            end
+                    else
+                        return notify("Notification", "No humanoid found in your character")
                     end
                 end
             end
@@ -854,20 +882,27 @@ local Synnax = {
                     if args[1]:lower() == "true" or tostring(args[1]):lower() == "on" then
                         if HackerDetectorEnabled == false then
                             HackerDetectorEnabled = true
+                            notify("Notification", "HackerDetector is On")
                             HackerDetectorConnection = game:GetService("RunService").Stepped:Connect(function(time, deltaTime)
                                 task.spawn(function()
                                     if HackerDetectorEnabled == true then
                                         for plrcount, allplrs in pairs(game:GetService("Players"):GetPlayers()) do
                                             local allchars = allplrs.Character or allplrs.CharacterAdded
-                                            if allplrs ~= game:GetService("Players").LocalPlayer then
+                                            if allplrs ~= nil then
                                                 if allchars and getRoot(allchars) and allchars:FindFirstChildWhichIsA("Humanoid") then
                                                     task.spawn(function()
                                                         local AnotherHumanoidRootPart = getRoot(allchars)
                                                         local OldPos = AnotherHumanoidRootPart.Position
-                                                        task.wait(1)
+                                                        task.wait(.5)
                                                         local NewPos = AnotherHumanoidRootPart.Position
-                                                        if (NewPos - OldPos).Magnitude > (Humanoid.WalkSpeed + 25) and allchars:FindFirstChildWhichIsA("Humanoid").Sit == false and not allchars:FindFirstChildWhichIsA("ForceField") then
+                                                        if (NewPos - OldPos).Magnitude > (Humanoid.WalkSpeed + 15) and allchars:FindFirstChildWhichIsA("Humanoid").Sit == false and not allchars:FindFirstChildWhichIsA("ForceField") then
                                                             notify("HackerDetector", "User: " .. tostring(allplrs.Name) .. ", Display: " .. tostring(allplrs.DisplayName) .. "\n Speed, Teleport Cheating, Type: MagnitudeDetect")
+                                                            
+                                                            if (args[2]) then
+                                                                if (args[2] == "true" or args[2] == "on") then
+                                                                    Players:ReportAbuse(plrreportget, reportreason, "he keep using SPEED and TELEPORT everywhere to KILL everyone in the game")
+                                                                end
+                                                            end
                                                         end
                                                     end)
                                                 end
@@ -875,15 +910,36 @@ local Synnax = {
                                                 if allchars:FindFirstChildWhichIsA("Humanoid") then
                                                     if allchars:WaitForChild("Humanoid").PlatformStand == true then
                                                         notify("HackerDetector", "User: " .. tostring(allplrs.Name) .. ", Display: " .. tostring(allplrs.DisplayName) .. "\n Fly Cheating, Type: FlatformStanding")
+                                                        Players:ReportAbuse(plrreportget, reportreason, "he's FLYING arround the game, and something FLING me")
+
+                                                        if (args[2]) then
+                                                            if (args[2] == "true" or args[2] == "on") then
+                                                                Players:ReportAbuse(plrreportget, reportreason, "he's FLYING arround the game, and something FLING me")
+                                                            end
+                                                        end
                                                     end
                                                 end
-                                                if char:FindFirstChild("Torso") or char:FindFirstChild("UpperTorso") then
-                                                    if char:FindFirstChild("Torso") and char:FindFirstChild("Torso").CanCollide == false and char:FindFirstChild("Torso").CollisionGroupId == 0 and not char:FindFirstChild("UpperTorso") then
+
+                                               --[[
+                                                 if allchars:FindFirstChild("Torso") or allchars:FindFirstChild("UpperTorso") then
+                                                    if allchars:FindFirstChild("Torso") and allchars:FindFirstChild("Torso").CanCollide == false and allchars:FindFirstChild("Torso").CollisionGroupId == 0 and not allchars:FindFirstChild("UpperTorso") then
                                                         notify("HackerDetector", "User: " .. tostring(allplrs.Name) .. ", Display: " .. tostring(allplrs.DisplayName) .. "\n Noclip, Type: CanCollide")
-                                                    elseif not char:FindFirstChild("Torso") and char:FindFirstChild("UpperTorso") and char:FindFirstChild("UpperTorso").CanCollide == false and char:FindFirstChild("UpperTorso").CollisionGroupId == 0 then
+                                                        Players:ReportAbuse(plrreportget, reportreason, "he's HACKING and KILL everyone in the game")
+                                                        if (args[2]) then
+                                                            if (args[2] == "true" or args[2] == "on") then
+                                                                Players:ReportAbuse(plrreportget, reportreason, "he's HACKING and KILL everyone in the game")
+                                                            end
+                                                        end
+                                                    elseif not allchars:FindFirstChild("Torso") and allchars:FindFirstChild("UpperTorso") and allchars:FindFirstChild("UpperTorso").CanCollide == false and allchars:FindFirstChild("UpperTorso").CollisionGroupId == 0 then
                                                         notify("HackerDetector", "User: " .. tostring(allplrs.Name) .. ", Display: " .. tostring(allplrs.DisplayName) .. "\n Noclip, Type: CanCollide")
+                                                        if (args[2]) then
+                                                            if (args[2] == "true" or args[2] == "on") then
+                                                                Players:ReportAbuse(plrreportget, reportreason, "he's HACKING and KILL everyone in the game")
+                                                            end
+                                                        end
                                                     end
                                                 end
+                                                --]]
                                             end
                                         end
                                         task.wait(.1)
@@ -895,6 +951,7 @@ local Synnax = {
                         end
                     elseif args[1]:lower() == "false" or tostring(args[1]):lower() == "off" then
                         if HackerDetectorEnabled == true then
+                            notify("Notification", "HackerDetector is Off")
                             HackerDetectorEnabled = false
                             if HackerDetectorConnection then
                                 HackerDetectorConnection:Disconnect()
@@ -904,7 +961,7 @@ local Synnax = {
                         end
                     end
                 else
-                    notify("Notification", "You must set status like HackerDetector [on/off] [true/false]")
+                    notify("Notification", "You must set status like HackerDetector mode: ['on/off' or 'true/false']; Report player: ['on/off' or 'true/false']")
                 end
             end
         },
@@ -986,9 +1043,9 @@ local Synnax = {
                     local Head = speaker.Character:FindFirstChild("Head")
                     Head.Anchored = true
                     if args[1] then
-                        execCmd("BetterFloat " .. tostring(args[1]))
+                        execCmd("cfly " .. tostring(args[1]))
                     else
-                        execCmd("BetterFloat 20")
+                        execCmd("cfly 20")
                     end
                 end
             end
@@ -1001,7 +1058,7 @@ local Synnax = {
                 if speaker.Character and speaker.Character:FindFirstChild("Head") then
                     local Head = speaker.Character:FindFirstChild("Head")
                     Head.Anchored = false
-                    execCmd("UnBetterFloat")
+                    execCmd("uncfly")
                     execCmd("tpwalk 0")
                     execCmd("untpwalk")
                 end
