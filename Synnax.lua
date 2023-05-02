@@ -220,7 +220,13 @@ local Synnax = {
                task.spawn(function()
                     notify("Notification", "Start fake lagging")
                     FakeLagEnabled = true
-                    speaker.Character.Animate.Disabled = true
+                    speaker.Character:FindFirstChild("Animate").Disabled = true;
+
+                    speaker.CharacterAdded:Connect(function()
+                        repeat task.wait() until speaker.Character:FindFirstChild("Animate")
+                        speaker.Character:FindFirstChild("Animate").Disabled = true;
+                    end)
+
                     if args[1] and tonumber(args[1]) then
                         local repE1 = false;
                         repeat task.wait(tonumber(args[1]))
@@ -244,7 +250,7 @@ local Synnax = {
                         until FakeLagEnabled == false
                     else
                         local repE2 = false;
-                        repeat task.wait(5)
+                        repeat task.wait(2)
                             if (repE2 == false) then
                                 game:GetService("NetworkClient"):SetOutgoingKBPSLimit(-999999)
                                 repE2 = true;
@@ -271,7 +277,7 @@ local Synnax = {
                 notify("Notification", "Stop fake lagging")
                 FakeLagEnabled = false
                 game:GetService("NetworkClient"):SetOutgoingKBPSLimit(math.huge())
-                speaker.Character.Animate.Disabled = false
+                speaker.Character.Animate.Disabled = false;
                 game:GetService("NetworkClient"):SetOutgoingKBPSLimit(math.huge())
             end
         },
@@ -636,7 +642,7 @@ local Synnax = {
         },
         ["BetterInvisiblefling"] = {
             ["ListName"] = "BetterInvisibleFling / BetterInvisFling [plr]",
-            ["Description"] = "Fling player you want but it will be invisible!",
+            ["Description"] = "Fling player you want, but it will be invisible!",
             ["Aliases"] = {"BetterInvisibleFling", "FastInvisibleFling", "betterinvisfling", "betterinvisiblefling", "fastinvisiblefling", "fastinvisfling", "fvfling"},
             ["Function"] = function(args, speaker)
                 if args[1] then
@@ -823,6 +829,8 @@ local Synnax = {
             ["Aliases"] = {"unbetterfloat", "unbfloat"},
             ["Function"] = function(args, speaker)
                 FloatEnabled = false
+                execCmd('tpwalk 0')
+                execCmd('untpwalk')
                 if plr.Character:FindFirstChild("Fly") then
                     plr.Character:FindFirstChild("Fly"):Destroy()
                 end
