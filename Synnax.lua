@@ -19,6 +19,10 @@ local Humanoid = char:FindFirstChildWhichIsA("Humanoid")
 local Mouse = plr:GetMouse()
 local alreadyreported = {}
 local hackerreported = {}
+local flyloop = nil;
+local userinputget1 = nil;
+local userinputget2 = nil;
+local uis = game:GetService("UserInputService")
 
 local badwordsreport = {
     ["gay"] = "Bullying",
@@ -28,6 +32,7 @@ local badwordsreport = {
     ["furry"] = "Bullying",
     ["furries"] = "Bullying",
     ["furr"] = "Bullying",
+    ["nig"] = "Bullying",
     ["hack"] = "Scamming",
     ["exploit"] = "Scamming",
     ["cheat"] = "Scamming",
@@ -38,22 +43,23 @@ local badwordsreport = {
     ["fuck"] = "Bullying",
     ["bitch"] = "Bullying",
     ["ass"] = "Bullying",
-    ["report"] = "Bullying",
     ["fat"] = "Bullying",
     ["black"] = "Bullying",
     ["getalife"] = "Bullying",
-    ["fatherless"] = "Bullying",
     ["report"] = "Bullying",
     ["fatherless"] = "Bullying",
     ["disco"] = "Offsite Links",
     ["yt"] = "Offsite Links",
     ["youtube"] = "Offsite Links",
     ["dizcourde"] = "Offsite Links",
+    ["http:/"] = "Offsite Links",
+    ["https:/"] = "Offsite Links",
     ["retard"] = "Swearing",
     ["bad"] = "Bullying",
     ["trash"] = "Bullying",
+    ["rubbish"] = "Bullying",
     ["nolife"] = "Bullying",
-    ["nolife"] = "Bullying",
+    ["nolive"] = "Bullying",
     ["loser"] = "Bullying",
     ["urmom"] = "Bullying",
     ["urmum"] = "Bullying",
@@ -71,8 +77,11 @@ local badwordsreport = {
     ["krnl"] = "Offsite Links",
     ["synnapse"] = "Offsite Links",
     ["syn"] = "Offsite Links",
+    ["fluxus"] = "Offsite Links",
+    ["scriptware"] = "Offsite Links",
+    ["script-ware"] = "Offsite Links",
     ["download"] = "Offsite Links",
-    ["youtube"] = "Offsite Links",
+    ["yalltube"] = "Offsite Links",
     ["die"] = "Bullying",
     ["lobby"] = "Bullying",
     ["ban"] = "Bullying",
@@ -80,6 +89,8 @@ local badwordsreport = {
     ["wisard"] = "Bullying",
     ["witch"] = "Bullying",
     ["magic"] = "Bullying",
+    ["bot"] = "Scamming",
+    ["sex"] = "Scamming",
     ["L"] = "Bullying",
 }
 
@@ -93,10 +104,34 @@ function getTorso(charget)
     return rootPart
 end
 
+local Clip = false;
+local Noclipping = nil;
+function noclip(state)
+    if (state) then
+        Clip = false
+        task.wait(0.1)
+        local function NoclipLoop()
+            if Clip == false and plr.Character ~= nil then
+                for _, child in pairs(plr.Character:GetDescendants()) do
+                    if child:IsA("BasePart") and child.CanCollide == true then
+                        child.CanCollide = false
+                    end
+                end
+            end
+        end
+        Noclipping = game:GetService("RunService").Stepped:Connect(NoclipLoop)
+    else
+        if Noclipping then
+            Noclipping:Disconnect()
+        end
+        Clip = true
+    end
+end
+
 local function removerepeat(str)
     local newstr = ""
     local lastlet = ""
-    for i,v in pairs(str:split("")) do 
+    for i,v in pairs(str:split("")) do
         if v ~= lastlet then
             newstr = newstr..v 
             lastlet = v
@@ -187,23 +222,39 @@ local Synnax = {
                     FakeLagEnabled = true
                     speaker.Character.Animate.Disabled = true
                     if args[1] and tonumber(args[1]) then
+                        local repE1 = false;
                         repeat task.wait(tonumber(args[1]))
-                            if (not tonumber(args[1])) then
-                                game:GetService("NetworkClient"):SetOutgoingKBPSLimit(-9999)
+                            if (repE1 == false) then
+                                if (not tonumber(args[1])) then
+                                    game:GetService("NetworkClient"):SetOutgoingKBPSLimit(-999999)
+                                else
+                                    game:GetService("NetworkClient"):SetOutgoingKBPSLimit(0 - args[1])
+                                end
+                                repE1 = true;
                             else
-                                game:GetService("NetworkClient"):SetOutgoingKBPSLimit(0 - args[1])
+                                game:GetService("NetworkClient"):SetOutgoingKBPSLimit(math.huge())
+                                repE1 = false;
+                                if FakeLagEnabled == false then
+                                    break
+                                end
                             end
-                            task.wait(5)
-                            game:GetService("NetworkClient"):SetOutgoingKBPSLimit(math.huge())
                             if FakeLagEnabled == false then
                                 break
                             end
                         until FakeLagEnabled == false
                     else
+                        local repE2 = false;
                         repeat task.wait(5)
-                            game:GetService("NetworkClient"):SetOutgoingKBPSLimit(-9999)
-                            task.wait(5)
-                            game:GetService("NetworkClient"):SetOutgoingKBPSLimit(math.huge())
+                            if (repE2 == false) then
+                                game:GetService("NetworkClient"):SetOutgoingKBPSLimit(-999999)
+                                repE2 = true;
+                            else
+                                game:GetService("NetworkClient"):SetOutgoingKBPSLimit(math.huge())
+                                repE2 = false;
+                                if FakeLagEnabled == false then
+                                    break
+                                end
+                            end
                             if FakeLagEnabled == false then
                                 break
                             end
@@ -399,7 +450,7 @@ local Synnax = {
                                         child.CustomPhysicalProperties = PhysicalProperties.new(math.huge, math.huge, math.huge)
                                     end
                                 end
-                                execCmd('noclip')
+                                noclip(true)
                                 local OldCFrameBeforeRun = getRoot(speaker.Character).CFrame
                                 task.wait(.1)
                                 local bambam = Instance.new("BodyAngularVelocity")
@@ -438,25 +489,35 @@ local Synnax = {
                                             local flingplrcframe = getRoot(flingplrcheck.Character).CFrame
                                             getRoot(speaker.Character).CFrame = CFrame.new(flingplrcframe.X, flingplrcframe.Y + 1, flingplrcframe.Z)
                                             getRoot(speaker.Character).CFrame = CFrame.new(flingplrcframe.X, flingplrcframe.Y + 1, flingplrcframe.Z)
-                                            task.wait(.05)
-                                            getRoot(speaker.Character).CFrame = CFrame.new(flingplrcframe.X + 0.5, flingplrcframe.Y + 1.5, flingplrcframe.Z + 0.5) 
-                                            task.wait(.05)
-                                            getRoot(speaker.Character).CFrame = CFrame.new(flingplrcframe.X - 0.5, flingplrcframe.Y - 1.5, flingplrcframe.Z - 0.5)
-                                            task.wait(.05)
+                                            task.wait(.035)
+                                            noclip(true)
                                             getRoot(speaker.Character).CFrame = CFrame.new(flingplrcframe.X + 0.5, flingplrcframe.Y + 1.5, flingplrcframe.Z + 0.5)
-                                            task.wait(.05)
+                                            noclip(false)
+                                            task.wait(.035)
+                                            noclip(true)
                                             getRoot(speaker.Character).CFrame = CFrame.new(flingplrcframe.X - 0.5, flingplrcframe.Y - 1.5, flingplrcframe.Z - 0.5)
-                                            task.wait(.05)
+                                            noclip(false)
+                                            task.wait(.035)
                                             getRoot(speaker.Character).CFrame = CFrame.new(flingplrcframe.X + 0.5, flingplrcframe.Y + 1.5, flingplrcframe.Z + 0.5)
-                                            task.wait(.05)
+                                            task.wait(.035)
                                             getRoot(speaker.Character).CFrame = CFrame.new(flingplrcframe.X - 0.5, flingplrcframe.Y - 1.5, flingplrcframe.Z - 0.5)
-                                            task.wait(.05)
+                                            task.wait(.035)
                                             getRoot(speaker.Character).CFrame = CFrame.new(flingplrcframe.X + 0.5, flingplrcframe.Y + 1.5, flingplrcframe.Z + 0.5)
-                                            task.wait(.05)
+                                            task.wait(.035)
+                                            getRoot(speaker.Character).CFrame = CFrame.new(flingplrcframe.X - 0.5, flingplrcframe.Y - 1.5, flingplrcframe.Z - 0.5)
+                                            task.wait(.035)
+                                            getRoot(speaker.Character).CFrame = CFrame.new(flingplrcframe.X + 0.5, flingplrcframe.Y + 1.5, flingplrcframe.Z + 0.5)
+                                            task.wait(.035)
                                             getRoot(speaker.Character).CFrame = CFrame.new(flingplrcframe.X + 0.5, flingplrcframe.Y - 1.5, flingplrcframe.Z + 0.5)
-                                            task.wait(.05)
+                                            task.wait(.035)
                                             getRoot(speaker.Character).CFrame = CFrame.new(flingplrcframe.X, flingplrcframe.Y - 1, flingplrcframe.Z)
                                             getRoot(speaker.Character).CFrame = CFrame.new(flingplrcframe.X, flingplrcframe.Y - 1, flingplrcframe.Z)
+                                            getRoot(speaker.Character).CFrame = flingplrcframe.CFrame * flingplrcframe.Velocity/4.
+                                            task.wait(.015)
+                                            getRoot(speaker.Character).CFrame = flingplrcframe.CFrame * flingplrcframe.Velocity/5.3
+                                            task.wait(.015)
+                                            getRoot(speaker.Character).CFrame = flingplrcframe.CFrame * flingplrcframe.Velocity/2.3
+                                            task.wait(.015)
                                             getRoot(speaker.Character).CFrame = flingplrcframe.CFrame * flingplrcframe.Velocity/4.3
                                         end
                                     end)
@@ -622,7 +683,7 @@ local Synnax = {
                         end
                     end)
                     execCmd('fly')
-                    execCmd('noclip')
+                    noclip(true)
                     workspace.CurrentCamera.CameraSubject = root
                     local bambam = Instance.new("BodyThrust")
                     bambam.Parent = getRoot(speaker.Character)
@@ -705,31 +766,52 @@ local Synnax = {
                 if args[1] then
                     execCmd('tpwalk ' .. tostring((tonumber(args[1]) / 100)))
                 end
-                local uis = game:GetService("UserInputService")
+                local floatName = "Fly"
                 local Tpwalkspeed = 50
-                local Float = Instance.new("Part", speaker.Character)
-                    Float.Name = randomString()
-                    Float.Transparency = 1
-                    Float.Size = Vector3.new(2,0.2,1.5)
-                    Float.Anchored = true
-                    local FloatValue = -3.1
-                    Float.CFrame = getRoot(speaker.Character).CFrame * CFrame.new(0, FloatValue, 0)
-                    game:GetService("RunService").Heartbeat:Connect(function()
-                        Float.CFrame = getRoot(speaker.Character).CFrame * CFrame.new(0, FloatValue, 0)
-                        if FloatEnabled == false then
-                            Float:Destroy()
+                local Float = Instance.new("Part", plr.Character)
+                Float.Name = floatName
+                Float.Transparency = 1
+                Float.Size = Vector3.new(2,0.2,1.5)
+                Float.Anchored = true
+                local FloatValue = -3.1
+                local BodyVelocityValue = 0
+                Float.CFrame = getRoot(plr.Character).CFrame * CFrame.new(0, FloatValue, 0)
+                local BodyVelocity = Instance.new("BodyVelocity")
+                BodyVelocity.Parent = getRoot(plr.Character)
+                BodyVelocity.MaxForce = Vector3.new(500, 500, 500)
+                BodyVelocity.Name = "Body"
+                flyloop = game:GetService("RunService").Heartbeat:Connect(function()
+                    if Float then
+                        Float.CFrame = getRoot(plr.Character).CFrame * CFrame.new(0, FloatValue, 0)
+                        BodyVelocity.Velocity = Vector3.new(plr.Character:FindFirstChild("Humanoid").MoveDirection.X * 1000, 0, plr.Character:FindFirstChild("Humanoid").MoveDirection.Z * 1000)
+                    else
+                        if plr.Character and getRoot(plr.Character) then
+                            local Float1 = Instance.new("Part", plr.Character)
+                            Float1.Name = floatName
+                            Float1.Transparency = 1
+                            Float1.Size = Vector3.new(2,0.2,1.5)
+                            Float1.Anchored = true
+                            local FloatValue = -3.1
+                            Float1.CFrame = getRoot(plr.Character).CFrame * CFrame.new(0, FloatValue, 0)
                         end
-                    end)
+                    end
+                end)
                 task.spawn(function()
-                    uis.InputBegan:Connect(function(key)
-                        if key.KeyCode == Enum.KeyCode.LeftShift then
-                            FloatValue -= 0.5
+                    userinputget1 = uis.InputBegan:Connect(function(key)
+                        if FloatEnabled == true then
+                            if key.KeyCode == Enum.KeyCode.LeftShift then
+                                FloatValue -= 0.5
+                                BodyVelocityValue -= 1
+                            end
                         end
                     end)
 
-                    uis.InputEnded:Connect(function(key)
-                        if key.KeyCode == Enum.KeyCode.LeftShift then
-                            FloatValue += 0.5
+                    userinputget2 = uis.InputEnded:Connect(function(key)
+                        if FloatEnabled == true then
+                            if key.KeyCode == Enum.KeyCode.LeftShift then
+                                FloatValue += 0.5
+                                BodyVelocityValue += 1
+                            end
                         end
                     end)
                 end)
@@ -741,6 +823,21 @@ local Synnax = {
             ["Aliases"] = {"unbetterfloat", "unbfloat"},
             ["Function"] = function(args, speaker)
                 FloatEnabled = false
+                if plr.Character:FindFirstChild("Fly") then
+                    plr.Character:FindFirstChild("Fly"):Destroy()
+                end
+        
+                if flyloop then
+                    flyloop:Disconnect()
+                end
+
+                if userinputget1 then
+                    userinputget1:Disconnect()
+                end
+        
+                if userinputget2 then
+                    userinputget2:Disconnect()
+                end
             end
         },
         ["SlowFloat"] = {
@@ -750,7 +847,6 @@ local Synnax = {
             ["Function"] = function(args, speaker)
                 if args[1] and tonumber(args[1]) ~= nil then
                     SlowFloatEnabled = true
-                    local uis = game:GetService("UserInputService")
                     local floatName = "Float"
                     local Tpwalkspeed = 50
                     local Float = Instance.new("Part", speaker.Character)
