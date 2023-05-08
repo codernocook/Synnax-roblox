@@ -1,0 +1,196 @@
+--// Variables
+local ZoomSpeed = 5;
+local maxZoom = 100
+local minZoom = 30
+local zoomEnable = false;
+
+--// Plugin code
+local Synnax = {
+    ["PluginName"] = "BetterFirstPerson",
+    ["PluginDescription"] = "Make your experience better",
+    ["Commands"] = {
+        ["BetterFirstPerson"] = {
+            ["ListName"] = "betterfp / bfp / bfirstp",
+            ["Description"] = "Make better first person.",
+            ["Aliases"] = {"betterfp", "bfp", "bfirstp"},
+            ["Function"] = function(args, speaker)
+                --// Force first person
+                game:GetService("Players").LocalPlayer.CameraMode = "LockFirstPerson";
+
+                --// Freemouse (RightCtrl)
+                local CoreGui = game:GetService("CoreGui")
+                local UserInputService = game:GetService("UserInputService")
+                local RunService = game:GetService("RunService")
+
+                local ScreenGui = CoreGui:FindFirstChild("MouseUnlockerGui") or Instance.new("ScreenGui")
+                ScreenGui.Name = "MouseUnlockerGui"
+                ScreenGui.Enabled = true
+                ScreenGui.Parent = CoreGui
+
+                local TextButton = Instance.new("TextButton")
+                TextButton.Name = "ModalButton"
+                TextButton.Modal = true
+                TextButton.Size = UDim2.new(0, 0, 0, 0)
+                TextButton.Position = UDim2.new(0, 0, 0, 0)
+                TextButton.Visible = false
+                TextButton.Parent = ScreenGui
+
+                UserInputService.InputBegan:Connect(function(inputObject, gameProcessedEvent)
+                    if inputObject.KeyCode == Enum.KeyCode.RightControl then
+                        TextButton.Visible = not TextButton.Visible
+                    end
+                end)
+
+                RunService.Stepped:Connect(function()
+                    if TextButton.Visible == true then
+                        UserInputService.OverrideMouseIconBehavior = Enum.OverrideMouseIconBehavior.ForceShow
+                    else
+                        UserInputService.OverrideMouseIconBehavior = Enum.OverrideMouseIconBehavior.None
+                    end
+                end)
+
+                --// First person
+                local player = game.Players.LocalPlayer
+                local char = player.Character
+                local RunService = game:GetService("RunService")
+
+                char.Humanoid.CameraOffset = Vector3.new(0, 0, -1)
+
+                for i, v in pairs(char:GetChildren()) do
+                    if v:IsA("BasePart") and v.Name ~= "Head" then
+                        v:GetPropertyChangedSignal("LocalTransparencyModifier"):Connect(function()
+                            v.LocalTransparencyModifier = v.Transparency
+                        end)
+                        v.LocalTransparencyModifier = v.Transparency
+                    end
+                end
+
+                RunService.RenderStepped:Connect(function(step)
+                    local ray = Ray.new(char.Head.Position, ((char.Head.CFrame + char.Head.CFrame.LookVector * 2) - char.Head.Position).Position.Unit)
+                    local ignoreList = char:GetChildren()
+
+                    local hit, pos = game.Workspace:FindPartOnRayWithIgnoreList(ray, ignoreList)
+
+                    if hit then
+                        char.Humanoid.CameraOffset = Vector3.new(0, 0, -(char.Head.Position - pos).magnitude)
+                    else
+                        char.Humanoid.CameraOffset = Vector3.new(0, 0, -1)
+                    end
+                end)
+
+                --// Fov
+                game:GetService("RunService").HeartBeat:Connect(function()
+                    task.spawn(function()
+                        pcall(function()
+                            if (zoomEnable == true) then return; end;
+                            game:GetService("Workspace").CurrentCamera.FieldOfView = 100;
+                        end)
+                    end)
+                end)
+
+                --// Auto Change setting when player is died
+                game:GetService("Players").LocalPlayer.CharacterAdded:Connect(function(character)
+                    --// Camera always affected by died
+                    game:GetService("Players").LocalPlayer.CameraMode = "LockFirstPerson";
+
+                    --// Also character viewer broken due to player character
+                    local player = game.Players.LocalPlayer
+                    local char = player.Character
+                    local RunService = game:GetService("RunService")
+
+                    char.Humanoid.CameraOffset = Vector3.new(0, 0, -1)
+
+                    for i, v in pairs(char:GetChildren()) do
+                        if v:IsA("BasePart") and v.Name ~= "Head" then
+                            v:GetPropertyChangedSignal("LocalTransparencyModifier"):Connect(function()
+                                v.LocalTransparencyModifier = v.Transparency
+                            end)
+                            v.LocalTransparencyModifier = v.Transparency
+                        end
+                    end
+
+                    RunService.RenderStepped:Connect(function(step)
+                        local ray = Ray.new(char.Head.Position, ((char.Head.CFrame + char.Head.CFrame.LookVector * 2) - char.Head.Position).Position.Unit)
+                        local ignoreList = char:GetChildren()
+
+                        local hit, pos = game.Workspace:FindPartOnRayWithIgnoreList(ray, ignoreList)
+
+                        if hit then
+                            char.Humanoid.CameraOffset = Vector3.new(0, 0, -(char.Head.Position - pos).magnitude)
+                        else
+                            char.Humanoid.CameraOffset = Vector3.new(0, 0, -1)
+                        end
+                    end)
+                end)
+            end
+        },
+        ["BetterZoom"] = {
+            ["ListName"] = "bzoom / bzm ['on/off' or 'true/false']",
+            ["Description"] = "Make your camera zooming.",
+            ["Aliases"] = {"bzoom", "bzm"},
+            ["Function"] = function(args, speaker)
+                if (args[1]) then
+                    if (args[1] == "true" or args[1] == "on") then
+                        if (zoomEnable == true) then return notify("bExp", "You already turned on zooming feature"); end
+                        zoomEnable = true;
+                        workspace.CurrentCamera.FieldOfView = 100
+                        local ContextActionService = game:GetService("ContextActionService")
+                        local ZoomSpeed = 5;
+        
+                        ContextActionService:BindAction("ZoomExploitTypeANotBorNotCnotDLOL", function(i, inputstate)
+                            task.spawn(function()
+                                if inputstate == Enum.UserInputState.Begin then
+                                    if workspace and workspace.CurrentCamera then
+                                        task.spawn(function()
+                                            --workspace.CurrentCamera.FieldOfView = 100
+                                            for i_zoom_speed = 1, ((workspace.CurrentCamera.FieldOfView - 30) / ZoomSpeed) do
+                                                task.wait()
+                                                workspace.CurrentCamera.FieldOfView -= ZoomSpeed
+                                            end
+                                            --workspace.CurrentCamera.FieldOfView = 30
+                                        end)
+                                    end
+                                elseif inputstate == Enum.UserInputState.End then
+                                    if workspace and workspace.CurrentCamera then
+                                        task.spawn(function()
+                                            --workspace.CurrentCamera.FieldOfView = 30
+                                            repeat task.wait()
+                                                workspace.CurrentCamera.FieldOfView += ZoomSpeed * 2
+                                            until workspace.CurrentCamera.FieldOfView >= 100
+                                            if workspace.CurrentCamera.FieldOfView >= 100 then
+                                                workspace.CurrentCamera.FieldOfView = 100
+                                            end
+                                            --workspace.CurrentCamera.FieldOfView = 100
+                                        end)
+                                    end
+                                end
+                            end)
+                        end, false, Enum.KeyCode.Z)
+                    elseif(args[1] == "false" or args[1] == "off") then
+                        if (zoomEnable == false) then return notify("bExp", "You already turned off zooming feature"); end
+                        zoomEnable = false;
+                    end
+                end
+            end
+        },
+        ["ZoomSetting"] = {
+            ["ListName"] = "bzoomS / bzms [zoomFov] [stopzoomFov] [zoomSpeed]",
+            ["Description"] = "Change your zoom setting.",
+            ["Aliases"] = {"bzooms", "bzms"},
+            ["Function"] = function(args, speaker)
+                local zoomFov = args[1];
+                local stopzoomFov = args[2];
+                local zoomSpeed = args[3];
+
+                if (not zoomFov or not stopzoomFov or not zoomSpeed) then return notify("bExp", "You must provide as the command.") end;
+                if (not tonumber(zoomFov) or not tonumber(stopzoomFov) or not tonumber(zoomSpeed)) then return notify("bExp", "Your provide must be a number") end;
+                
+                zoomSpeed = tonumber(zoomSpeed);
+                maxZoom = tonumber(stopzoomFov);
+                minZoom = tonumber(zoomFov);
+            end
+        }
+    }
+}
+
+return Synnax
