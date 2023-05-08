@@ -155,15 +155,18 @@ function findreport(msg)
     return nil
 end
 
+local oldposclick = Mouse.Hit
 plr:GetMouse().Button1Down:Connect(function()
     if ResetTeleportEnabled == true then
-        local oldposclick = Mouse.Hit.Position
+        oldposclick = Mouse.Hit
         respawn(plr)
-        oldposclick = Mouse.Hit.Position
-        task.wait(Players.RespawnTime + 0.1)
-        local rootget = getRoot(plr.Character)
-        rootget.CFrame = CFrame.new(oldposclick.X, oldposclick.Y, oldposclick.Z)
-        ResetTeleportEnabled = false
+    end
+end)
+
+game:GetService("Players").LocalPlayer.CharacterAdded:Connect(function(character)
+    if ResetTeleportEnabled == true then
+        repeat task.wait() until character:FindFirstChild("HumanoidRootPart");
+	    character:FindFirstChild("HumanoidRootPart").CFrame = oldposclick;
     end
 end)
 
