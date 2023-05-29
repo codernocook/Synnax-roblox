@@ -216,58 +216,144 @@ local Synnax = {
             end
         },
         ["FakeLag"] = {
-            ["ListName"] = "flag / Fakelag",
-            ["Description"] = "Make your movement more laggy",
+            ["ListName"] = "flag / Fakelag [delay] [delay1 (this option will random from delay to delay1)]",
+            ["Description"] = "Make your movement laggier",
             ["Aliases"] = {"flag", "fakelag"},
             ["Function"] = function(args, speaker)
                task.spawn(function()
                     notify("Notification", "Start fake lagging")
                     FakeLagEnabled = true
-                    speaker.Character:FindFirstChild("Animate").Disabled = true;
+                    --speaker.Character:FindFirstChild("Animate").Disabled = true;
 
                     speaker.CharacterAdded:Connect(function()
-                        repeat task.wait() until speaker.Character:FindFirstChild("Animate")
-                        speaker.Character:FindFirstChild("Animate").Disabled = true;
+                        --repeat task.wait() until speaker.Character:FindFirstChild("Animate")
+                        --speaker.Character:FindFirstChild("Animate").Disabled = true;
                     end)
 
                     if args[1] and tonumber(args[1]) then
                         local repE1 = false;
-                        repeat task.wait(tonumber(args[1]))
-                            if (repE1 == false) then
-                                if (not tonumber(args[1])) then
-                                    game:GetService("NetworkClient"):SetOutgoingKBPSLimit(-999999)
+
+                        -- Character exploit (this's just a way to make character move glitchy (NOT SURE this will save you from anti cheat))
+                        if (char) then
+                            -- old Archivable value
+                            local old_archivable = char.Archivable
+                            local old_index = nil;
+                            
+                            -- Allow to clone character
+                            char.Archivable = true;
+
+                            -- Cloning
+                            local second_char = char:Clone();
+                            char.Archivable = true;
+                            second_char.Archivable = false;
+                            second_char.Name = char.Name .. "_c";
+                            second_char.Parent = game:GetService("Workspace");
+
+                            -- Set client cloned character moving
+                            plr.Character = second_char;
+
+                            -- Set camera's subject to second character
+                            if (workspace and workspace.CurrentCamera) then
+                                workspace.CurrentCamera.CameraSubject = second_char:FindFirstChildWhichIsA("Humanoid");
+                            end
+
+                            -- Prevent cloned character keep stuck because main character (using cancollide)
+                            for _, v in pairs(char:GetDescendants()) do
+                                if (v and (v.ClassName == "Part" or v.ClassName == "MeshPart") or v.ClassName == "Decal") then
+                                    game:GetService("RunService").Stepped:Connect(function()
+                                        if Clip == false and v ~= nil then
+                                            for _, child in pairs(v:GetDescendants()) do
+                                                if child:IsA("BasePart") and child.CanCollide == true then
+                                                    child.CanCollide = false
+                                                end
+                                            end
+                                        end
+                                    end)
+                                end
+                            end
+
+                            -- Make the main character disappear (transparency)
+                            if (char) then
+                                for _, v in pairs(char:GetDescendants()) do
+                                    if (v and (v.ClassName == "Part" or v.ClassName == "MeshPart") or v.ClassName == "Decal") then
+                                        v.Transparency = 1;
+                                    end
+                                end
+                            end
+                        end
+                        --------------------------------------------------------------------------------------------------------------------------
+
+                        local _time = tonumber(args[1]);
+
+                        if (args and args[1] and tonumber(args[1]) and args[2] and tonumber(args[2])) then
+                            if (tonumber(args[2]) <= tonumber(args[1])) then
+                                notify("Notification", "[delay1] must be > [delay]. Randomed:\n[delay]: 2 | delay[1]: 3.5")
+                                _time = math.random(2, 3.5)
+                            else
+                                _time = math.random(tonumber(args[1]), tonumber(args[2]))
+                            end
+                        elseif (args and args[1] and tonumber(args[1]) and not args[2]) then
+                            _time = tonumber(args[1]);
+                        end
+
+                        repeat task.wait(tonumber(_time))
+                            -- Renew time
+                            if (args and args[1] and tonumber(args[1]) and args[2] and tonumber(args[2])) then
+                                if (tonumber(args[2]) <= tonumber(args[1])) then
+                                    _time = math.random(2, 3.5)
                                 else
-                                    game:GetService("NetworkClient"):SetOutgoingKBPSLimit(0 - args[1])
+                                    _time = math.random(tonumber(args[1]), tonumber(args[2]))
+                                end
+                            elseif (args and args[1] and tonumber(args[1]) and not args[2]) then
+                                _time = tonumber(args[1]);
+                            end
+
+                            if (repE1 == false) then
+                                if (tonumber(args[1])) then
+                                    -- Client legit lag (some server or client anti cheat will think you're actually lagging)
+                                    game:GetService("NetworkClient"):SetOutgoingKBPSLimit(-999999)
+
+                                    task.spawn(function()
+                                        pcall(function()
+                                            settings():GetService("NetworkSettings").IncomingReplicationLag = 999999
+                                            task.wait(.08);
+                                            settings():GetService("NetworkSettings").IncomingReplicationLag = 0
+                                        end)
+                                    end)
+                                else
+                                    notify("Notification", "The value must be a Number.")
+                                    repE1 = false;
+                                    return;
                                 end
                                 repE1 = true;
                             else
-                                game:GetService("NetworkClient"):SetOutgoingKBPSLimit(math.huge())
-                                repE1 = false;
+                                settings():GetService("NetworkSettings").IncomingReplicationLag = 0
+                                game:GetService("NetworkClient"):SetOutgoingKBPSLimit(math.huge)
                                 if FakeLagEnabled == false then
                                     break
                                 end
+
+                                -- Teleport faked/cloned character to main character
+                                if (plr and plr.Character) then
+                                    for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                                        if (v and v.ClassName == "Model" and v:FindFirstChildWhichIsA("Humanoid") and v.Name == plr.Name) then
+                                            v:PivotTo(plr.Character:GetPivot())
+
+                                            if (v:FindFirstChildWhichIsA("Humanoid") and getRoot(v)) then
+                                                local _root = getRoot(v);
+                                                v:FindFirstChildWhichIsA("Humanoid"):MoveTo(_root.Position + Vector3.new(2.5, 0, 2.5))
+                                            end
+                                        end
+                                    end
+                                end
+                                repE1 = false;
                             end
                             if FakeLagEnabled == false then
                                 break
                             end
                         until FakeLagEnabled == false
                     else
-                        local repE2 = false;
-                        repeat task.wait(2)
-                            if (repE2 == false) then
-                                game:GetService("NetworkClient"):SetOutgoingKBPSLimit(-999999)
-                                repE2 = true;
-                            else
-                                game:GetService("NetworkClient"):SetOutgoingKBPSLimit(math.huge())
-                                repE2 = false;
-                                if FakeLagEnabled == false then
-                                    break
-                                end
-                            end
-                            if FakeLagEnabled == false then
-                                break
-                            end
-                        until FakeLagEnabled == false
+                        execCmd("fakelag 3.5");
                     end
                end)
             end
@@ -279,9 +365,34 @@ local Synnax = {
             ["Function"] = function(args, speaker)
                 notify("Notification", "Stop fake lagging")
                 FakeLagEnabled = false
-                game:GetService("NetworkClient"):SetOutgoingKBPSLimit(math.huge())
-                speaker.Character.Animate.Disabled = false;
-                game:GetService("NetworkClient"):SetOutgoingKBPSLimit(math.huge())
+                settings():GetService("NetworkSettings").IncomingReplicationLag = 0
+                game:GetService("NetworkClient"):SetOutgoingKBPSLimit(math.huge)
+
+                -- Set camera to main character
+                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                    if (v and v.ClassName == "Model" and v:FindFirstChildWhichIsA("Humanoid") and v.Name == plr.Name) then
+                        game:GetService("Workspace").CurrentCamera.CameraSubject = v:FindFirstChildWhichIsA("Humanoid");
+                    end
+                end
+
+                -- Make the player visible
+                if (char) then
+                    for _, v in pairs(char:GetDescendants()) do
+                        if (v and (v.ClassName == "Part" or v.ClassName == "MeshPart" or v.ClassName == "Decal") and not v.Name == "HumanoidRootPart") then
+                            v.Transparency = 0;
+                        end
+                    end
+                end
+
+                -- Destroy fake cloned character
+                if (plr.Character) then
+                    plr.Character:Destroy();
+                    for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                        if (v and v.ClassName == "Model" and v:FindFirstChildWhichIsA("Humanoid") and v.Name == plr.Name) then
+                            plr.Character = v;
+                        end
+                    end
+                end
             end
         },
         ["ConsoleSpam"] = {
