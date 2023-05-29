@@ -583,6 +583,8 @@ local Synnax = {
                                         bambam1:Destroy()
                                     end
                                     local antiflingout_method1 = Instance.new("BodyGyro", getRoot(speaker.Character));
+                                    antiflingout_method1.P = 9e4;
+                                    antiflingout_method1.maxTorque = Vector3.new(9e9, 9e9, 9e9);
                                     local antiflingout = Instance.new("BodyVelocity")
                                     antiflingout.Parent = getRoot(speaker.Character)
                                     antiflingout.Name = randomString()
@@ -591,7 +593,7 @@ local Synnax = {
                                     getRoot(speaker.Character).Anchored = true
                                     getRoot(speaker.Character).CFrame = OldCFrameBeforeRun
                                     task.wait(.5)
-                                    execCmd('unnoclip')
+                                    noclip(false)
                                     getRoot(speaker.Character).Anchored = false
                                     getRoot(speaker.Character).CFrame = OldCFrameBeforeRun
                                     task.wait(.6)
@@ -1103,7 +1105,7 @@ local Synnax = {
                                                 BetterGodModeRespawnCheck = true
                                                 local oldrespawnpos = speaker.Character:GetPivot()
                                                 local oldcameracframe = game:GetService("Workspace").CurrentCamera.CFrame
-                                                task.wait(game:GetService("Players").RespawnTime - 0.1)
+                                                task.wait(game:GetService("Players").RespawnTime - 0.05)
                                                 oldrespawnpos = speaker.Character:GetPivot()
                                                 oldcameracframe = game:GetService("Workspace").CurrentCamera.CFrame
                                                 task.wait(0.1)
@@ -1111,6 +1113,15 @@ local Synnax = {
                                                 task.wait(0.1)
                                                 repeat task.wait() until speaker.Character and game:GetService("Workspace").CurrentCamera
                                                 speaker.Character:PivotTo(oldrespawnpos)
+                                                speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+                                                speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
+                                                speaker.Character:PivotTo(oldrespawnpos)
+                                                local anti_ragdoll = Instance.new("BodyGyro");
+                                                if (speaker.Character and speaker.Character:FindFirstChild("HumanoidRootPart")) then
+                                                    anti_ragdoll.P = 9e4;
+                                                    anti_ragdoll.maxTorque = Vector3.new(9e9, 9e9, 9e9);
+                                                    anti_ragdoll.Parent = speaker.Character:FindFirstChild("HumanoidRootPart")
+                                                end
                                                 if (speaker.Character and speaker.Character:FindFirstChild("HumanoidRootPart")) then
                                                     speaker.Character:FindFirstChild("HumanoidRootPart").Position = speaker.Character:FindFirstChild("HumanoidRootPart").Position
                                                 end
@@ -1120,8 +1131,41 @@ local Synnax = {
                                                     speaker.Character:FindFirstChild("HumanoidRootPart").Position = speaker.Character:FindFirstChild("HumanoidRootPart").Position
                                                 end
                                                 game:GetService("Workspace").CurrentCamera.CFrame = oldcameracframe
+                                                if (anti_ragdoll) then
+                                                    anti_ragdoll:Destroy();
+                                                end
                                                 speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
                                                 speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.PlatformStanding, false)
+                                                speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
+                                                speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
+                                                task.wait(.8)
+                                                if (speaker and speaker.Character and speaker.Character:FindFirstChildWhichIsA("Humanoid")) then
+                                                    speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+                                                    speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
+                                                    speaker.Character:FindFirstChildWhichIsA("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping);
+                                                end
+                                                speaker.Character:PivotTo(oldrespawnpos)
+                                                local anti_ragdoll = Instance.new("BodyGyro");
+                                                if (speaker.Character and speaker.Character:FindFirstChild("HumanoidRootPart")) then
+                                                    anti_ragdoll.P = 9e4;
+                                                    anti_ragdoll.maxTorque = Vector3.new(9e9, 9e9, 9e9);
+                                                    anti_ragdoll.Parent = speaker.Character:FindFirstChild("HumanoidRootPart")
+                                                end
+                                                if (speaker.Character and speaker.Character:FindFirstChild("HumanoidRootPart")) then
+                                                    speaker.Character:FindFirstChild("HumanoidRootPart").Position = speaker.Character:FindFirstChild("HumanoidRootPart").Position
+                                                end
+                                                game:GetService("Workspace").CurrentCamera.CFrame = oldcameracframe
+                                                speaker.Character:PivotTo(oldrespawnpos)
+                                                if (speaker.Character and speaker.Character:FindFirstChild("HumanoidRootPart")) then
+                                                    speaker.Character:FindFirstChild("HumanoidRootPart").Position = speaker.Character:FindFirstChild("HumanoidRootPart").Position
+                                                end
+                                                game:GetService("Workspace").CurrentCamera.CFrame = oldcameracframe
+                                                if (anti_ragdoll) then
+                                                    anti_ragdoll:Destroy();
+                                                end
+                                                speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
+                                                speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.PlatformStanding, false)
+                                                speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
                                                 speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
                                                 BetterGodModeRespawnCheck = false
                                             end
