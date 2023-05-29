@@ -532,7 +532,7 @@ local Synnax = {
                                     end)
                                 end)
 
-                                for flinglooprun = 1, 5 do
+                                for flinglooprun = 1, 6 do
                                     if not speaker.Character or not getRoot(speaker.Character) then return end
                                     RunLoopTeleport = true
                                     bambam.AngularVelocity = Vector3.new(999999999,999999999,999999999)
@@ -582,6 +582,7 @@ local Synnax = {
                                     if bambam1 then
                                         bambam1:Destroy()
                                     end
+                                    local antiflingout_method1 = Instance.new("BodyGyro", getRoot(speaker.Character));
                                     local antiflingout = Instance.new("BodyVelocity")
                                     antiflingout.Parent = getRoot(speaker.Character)
                                     antiflingout.Name = randomString()
@@ -597,6 +598,11 @@ local Synnax = {
                                     antiflingout.MaxForce = Vector3.new(9e9, 9e9, 9e9)
                                     if antiflingout then
                                         antiflingout:Destroy()
+                                    end
+                                    getRoot(speaker.Character).CFrame = OldCFrameBeforeRun
+                                    task.wait(1)
+                                    if (antiflingout_method1) then
+                                        antiflingout_method1:Destroy()
                                     end
                                     getRoot(speaker.Character).CFrame = OldCFrameBeforeRun
                                 end
