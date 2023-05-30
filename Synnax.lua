@@ -23,6 +23,7 @@ local flyloop = nil;
 local userinputget1 = nil;
 local userinputget2 = nil;
 local uis = game:GetService("UserInputService")
+local anchor_connection = nil;
 
 local badwordsreport = {
     ["gay"] = "Bullying",
@@ -106,13 +107,19 @@ end
 
 local Clip = false;
 local Noclipping = nil;
-function noclip(state)
+function noclip(state, character_)
     if (state) then
         Clip = false
         task.wait(0.1)
         local function NoclipLoop()
-            if Clip == false and plr.Character ~= nil then
-                for _, child in pairs(plr.Character:GetDescendants()) do
+            local character_get
+            if (character_) then
+                character_get = character_
+            else
+                character_get = plr.Chracter
+            end
+            if Clip == false and character_get ~= nil then
+                for _, child in pairs(character_get:GetDescendants()) do
                     if child:IsA("BasePart") and child.CanCollide == true then
                         child.CanCollide = false
                     end
@@ -249,14 +256,6 @@ local Synnax = {
                             second_char.Name = char.Name .. "_c";
                             second_char.Parent = game:GetService("Workspace");
 
-                            -- Set client cloned character moving
-                            plr.Character = second_char;
-
-                            -- Set camera's subject to second character
-                            if (workspace and workspace.CurrentCamera) then
-                                workspace.CurrentCamera.CameraSubject = second_char:FindFirstChildWhichIsA("Humanoid");
-                            end
-
                             -- Prevent cloned character keep stuck because main character (using cancollide)
                             for _, v in pairs(char:GetDescendants()) do
                                 if (v and (v.ClassName == "Part" or v.ClassName == "MeshPart") or v.ClassName == "Decal") then
@@ -280,6 +279,38 @@ local Synnax = {
                                     end
                                 end
                             end
+
+                            -- Set client cloned character moving
+                            plr.Character = second_char;
+
+                            -- Set camera's subject to second character
+                            if (workspace and workspace.CurrentCamera) then
+                                workspace.CurrentCamera.CameraSubject = second_char:FindFirstChildWhichIsA("Humanoid");
+                            end
+
+                            -- Get main character
+                            local main_character = nil;
+                            for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                                if (v and v.ClassName == "Model" and v:FindFirstChildWhichIsA("Humanoid") and v.Name == plr.Name) then
+                                    main_character = v;
+                                end
+                            end
+
+                            -- Make Character freeze (anchor) to make the lag realistic
+                            local anchor_loop = false;
+                            anchor_connection = game:GetService("RunService").Heartbeat:Connect(function()
+                                if (anchor_loop == true) then return end;
+                                anchor_loop = true;
+                                task.wait(.25);
+                                if (main_character and getRoot(main_character)) then
+                                    if (getRoot(main_character).Anchored == false) then
+                                        getRoot(main_character).Anchored = true;
+                                    else
+                                        getRoot(main_character).Anchored = false;
+                                    end
+                                end
+                                anchor_loop = false;
+                            end)
                         end
                         --------------------------------------------------------------------------------------------------------------------------
 
@@ -333,10 +364,14 @@ local Synnax = {
                                     break
                                 end
 
-                                -- Teleport faked/cloned character to main character
+                                -- Make character vaild
                                 if (plr and plr.Character) then
                                     for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
                                         if (v and v.ClassName == "Model" and v:FindFirstChildWhichIsA("Humanoid") and v.Name == plr.Name) then
+                                            -- Make main character CanCollide so cloned character won't touch it
+                                            noclip(true, plr.Character);
+
+                                            -- Teleport faked/cloned character to main character
                                             v:PivotTo(plr.Character:GetPivot())
 
                                             if (v:FindFirstChildWhichIsA("Humanoid") and getRoot(v)) then
@@ -346,6 +381,24 @@ local Synnax = {
                                         end
                                     end
                                 end
+
+                                -- Make player move out (thinking lagging)
+                                if (plr and plr.Character) then
+                                    for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                                        if (v and v.ClassName == "Model" and v:FindFirstChildWhichIsA("Humanoid") and v.Name == plr.Name) then
+                                            if (v:FindFirstChildWhichIsA("Humanoid")) then
+                                                local _root = getRoot(v);
+
+                                                if (plr.Character:FindFirstChildWhichIsA("Humanoid")) then
+                                                    if (plr.Character:FindFirstChildWhichIsA("Humanoid").MoveDirection.Magnitude > 0) then
+                                                        v:FindFirstChildWhichIsA("Humanoid"):MoveTo(_root.Position + Vector3.new(2, 0, 2))
+                                                    end
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+
                                 repE1 = false;
                             end
                             if FakeLagEnabled == false then
@@ -375,21 +428,35 @@ local Synnax = {
                     end
                 end
 
-                -- Make the player visible
+                -- Remove anchor loop
+                if (anchor_connection) then
+                    anchor_connection:Disconnect();
+                    anchor_connection = nil;
+                end
+
+                -- Fix character
                 if (char) then
                     for _, v in pairs(char:GetDescendants()) do
-                        if (v and (v.ClassName == "Part" or v.ClassName == "MeshPart" or v.ClassName == "Decal") and not v.Name == "HumanoidRootPart") then
+                        if (v and (v.ClassName == "Part" or v.ClassName == "MeshPart" or v.ClassName == "Decal") and v.Name ~= "HumanoidRootPart") then
+                            -- Make the player visible
                             v.Transparency = 0;
+
+                            -- Make character touchable
+                            noclip(false, char);
                         end
                     end
                 end
 
                 -- Destroy fake cloned character
                 if (plr.Character) then
-                    plr.Character:Destroy();
                     for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
                         if (v and v.ClassName == "Model" and v:FindFirstChildWhichIsA("Humanoid") and v.Name == plr.Name) then
                             plr.Character = v;
+                        end
+                    end
+                    for _1, v1 in pairs(game:GetService("Workspace"):GetDescendants()) do
+                        if (v1 and v1.ClassName == "Model" and v1:FindFirstChildWhichIsA("Humanoid") and v1.Name == plr.Name .. "_c") then
+                            v1:Destroy();
                         end
                     end
                 end
