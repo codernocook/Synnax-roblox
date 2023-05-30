@@ -24,6 +24,8 @@ local userinputget1 = nil;
 local userinputget2 = nil;
 local uis = game:GetService("UserInputService")
 local anchor_connection = nil;
+local anchor_died_connection = nil;
+local resettp_delay = 0;
 
 local badwordsreport = {
     ["gay"] = "Bullying",
@@ -35,16 +37,22 @@ local badwordsreport = {
     ["furr"] = "Bullying",
     ["nig"] = "Bullying",
     ["hack"] = "Scamming",
+    ["hax"] = "Scamming",
+    ["hex"] = "Scamming",
     ["exploit"] = "Scamming",
     ["cheat"] = "Scamming",
     ["dllcheat"] = "Scamming",
     ["dllexploit"] = "Scamming",
     ["hecker"] = "Scamming",
     ["hacer"] = "Scamming",
+    ["haxer"] = "Scamming",
+    ["hexer"] = "Scamming",
     ["fuck"] = "Bullying",
     ["bitch"] = "Bullying",
+    ["beach"] = "Bullying",
     ["ass"] = "Bullying",
     ["fat"] = "Bullying",
+    ["deck"] = "Bullying",
     ["black"] = "Bullying",
     ["getalife"] = "Bullying",
     ["report"] = "Bullying",
@@ -76,13 +84,15 @@ local badwordsreport = {
     ["futureclient"] = "Offsite Links",
     ["infyield"] = "Offsite Links",
     ["krnl"] = "Offsite Links",
-    ["synnapse"] = "Offsite Links",
     ["syn"] = "Offsite Links",
     ["fluxus"] = "Offsite Links",
     ["scriptware"] = "Offsite Links",
     ["script-ware"] = "Offsite Links",
     ["download"] = "Offsite Links",
     ["yalltube"] = "Offsite Links",
+    ["github"] = "Offsite Links",
+    ["gitlab"] = "Offsite Links",
+    ["spotify"] = "Offsite Links",
     ["die"] = "Bullying",
     ["lobby"] = "Bullying",
     ["ban"] = "Bullying",
@@ -90,6 +100,7 @@ local badwordsreport = {
     ["wisard"] = "Bullying",
     ["witch"] = "Bullying",
     ["magic"] = "Bullying",
+    ["shut"] = "Bullying",
     ["bot"] = "Scamming",
     ["sex"] = "Scamming",
     ["L"] = "Bullying",
@@ -140,7 +151,7 @@ local function removerepeat(str)
     local lastlet = ""
     for i,v in pairs(str:split("")) do
         if v ~= lastlet then
-            newstr = newstr..v 
+            newstr = newstr..v
             lastlet = v
         end
     end
@@ -149,18 +160,20 @@ end
 
 function findreport(msg)
     local checkstr = removerepeat(msg:gsub("%W+", ""):lower())
-    for i,v in pairs(badwordsreport) do 
-        if checkstr:find(i) then 
+    for i,v in pairs(badwordsreport) do
+        if checkstr:find(i) then
             return v, i
         end
     end
-    for i,v in pairs(badwordsreport) do 
-        if checkstr == i then 
+    for i,v in pairs(badwordsreport) do
+        if checkstr == i then
             return v, i
         end
     end
     return nil
 end
+
+
 
 local oldposclick = Mouse.Hit
 plr:GetMouse().Button1Down:Connect(function()
@@ -171,8 +184,13 @@ plr:GetMouse().Button1Down:Connect(function()
 end)
 
 game:GetService("Players").LocalPlayer.CharacterAdded:Connect(function(character)
+    -- Set new character variable
+    char = character;
+
+    -- ResetTeleportExploit
     if ResetTeleportEnabled == true then
         repeat task.wait() until character:FindFirstChild("HumanoidRootPart");
+        task.wait(resettp_delay or 0);
 	    character:FindFirstChild("HumanoidRootPart").CFrame = oldposclick;
     end
 end)
@@ -197,20 +215,26 @@ local Synnax = {
             end
         },
         ["ResetTeleport"] = {
-            ["ListName"] = "resetp / resettp / reback [on/off]",
+            ["ListName"] = "resettp [on/off] [delay]",
             ["Description"] = "Reset you and teleport to the last click position, may bypass some anti cheat",
-            ["Aliases"] = {"resettp", "resetp", "reback"},
+            ["Aliases"] = {"resettp"},
             ["Function"] = function(args, speaker)
                 task.spawn(function()
                     if args[1] then
                         if args[1] == "on" then
                             if ResetTeleportEnabled == true then
+                                if (args[2] and tonumber(args[2])) then
+                                    resettp_delay = tonumber(args[2]);
+                                end
                                 notify("Notification", "ResetTeleport already turned on!")
                             else
                                 ResetTeleportEnabled = true
                             end
                         elseif args[1] == "off" then
                             if ResetTeleportEnabled == false then
+                                if (args[2] and tonumber(args[2])) then
+                                    resettp_delay = tonumber(args[2]);
+                                end
                                 notify("Notification", "ResetTeleport already turned off!")
                             else
                                 ResetTeleportEnabled = false
@@ -378,7 +402,11 @@ local Synnax = {
                                     for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
                                         if (v and v.ClassName == "Model" and v:FindFirstChildWhichIsA("Humanoid") and v.Name == plr.Name) then
                                             -- Make main character CanCollide so cloned character won't touch it
-                                            noclip(true, plr.Character);
+                                            for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                                                if (v and v.ClassName == "Model" and v:FindFirstChildWhichIsA("Humanoid") and v.Name == plr.Name) then
+                                                    noclip(true, v);
+                                                end
+                                            end
 
                                             -- Teleport faked/cloned character to main character
                                             v:PivotTo(plr.Character:GetPivot())
@@ -400,13 +428,168 @@ local Synnax = {
 
                                                 if (plr.Character:FindFirstChildWhichIsA("Humanoid")) then
                                                     if (plr.Character:FindFirstChildWhichIsA("Humanoid").MoveDirection.Magnitude > 0) then
-                                                        v:FindFirstChildWhichIsA("Humanoid"):MoveTo(_root.Position + Vector3.new(2, 0, 2))
+                                                        v:FindFirstChildWhichIsA("Humanoid"):MoveTo(_root.Position + Vector3.new(math.random(0, .5), 0, math.random(0, 0.5)))
+                                                    end
+                                                    if (plr.Character:FindFirstChildWhichIsA("Humanoid").Jump == true) then
+                                                        v:FindFirstChildWhichIsA("Humanoid").Jump = true;
                                                     end
                                                 end
                                             end
                                         end
                                     end
                                 end
+
+                                -- Died (prevent cloned character and main character loop when died)
+                                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                                    if (v and v.ClassName == "Model" and v:FindFirstChildWhichIsA("Humanoid") and v.Name == plr.Name) then
+                                        if (v:FindFirstChildWhichIsA("Humanoid")) then
+                                            if (plr.Character:FindFirstChildWhichIsA("Humanoid")) then
+                                                plr.Character:FindFirstChildWhichIsA("Humanoid").Died:Connect(function()
+                                                    notify("Notification", "Stop fake lagging, because you died");
+                                                    -- wait until respawned
+                                                    task.wait(game:GetService("Players").RespawnTime + 0.5);
+                                                    
+                                                    FakeLagEnabled = false
+                                                    settings():GetService("NetworkSettings").IncomingReplicationLag = 0
+                                                    game:GetService("NetworkClient"):SetOutgoingKBPSLimit(math.huge)
+
+                                                    -- Remove anchor loop
+                                                    if (anchor_connection) then
+                                                        anchor_connection:Disconnect();
+                                                        anchor_connection = nil;
+                                                    end
+
+                                                    -- Remove character removal checker
+                                                    if (anchor_died_connection) then
+                                                        anchor_died_connection:Disconnect();
+                                                        anchor_died_connection = nil;
+                                                    end
+
+                                                    -- Set camera to main character
+                                                    for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                                                        if (v and v.ClassName == "Model" and v:FindFirstChildWhichIsA("Humanoid") and v.Name == plr.Name) then
+                                                            game:GetService("Workspace").CurrentCamera.CameraSubject = v:FindFirstChildWhichIsA("Humanoid");
+
+                                                            -- Make Humanoid setting 
+                                                            v:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.Died, true);
+
+                                                            -- Change root anchor state
+                                                            if (getRoot(v)) then
+                                                                getRoot(v).Anchored = false;
+                                                            end
+                                                        end
+                                                    end
+
+                                                    -- Fix character
+                                                    if (char) then
+                                                        for _, v in pairs(char:GetDescendants()) do
+                                                            if (v and (v.ClassName == "Part" or v.ClassName == "MeshPart" or v.ClassName == "Decal") and v.Name ~= "HumanoidRootPart") then
+                                                                -- Make the player visible
+                                                                v.Transparency = 0;
+
+                                                                -- Make character touchable
+                                                                noclip(false, char);
+                                                            end
+                                                        end
+                                                    end
+
+                                                    -- Destroy fake cloned character
+                                                    if (plr.Character) then
+                                                        for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                                                            if (v and v.ClassName == "Model" and v:FindFirstChildWhichIsA("Humanoid") and v.Name == plr.Name) then
+                                                                plr.Character = v;
+
+                                                                if (getRoot(v)) then
+                                                                    getRoot(v).Anchored = false;
+                                                                end
+                                                            end
+                                                        end
+                                                        for _1, v1 in pairs(game:GetService("Workspace"):GetDescendants()) do
+                                                            if (v1 and v1.ClassName == "Model" and v1:FindFirstChildWhichIsA("Humanoid") and v1.Name == plr.Name .. "_c") then
+                                                                v1:Destroy();
+                                                            end
+                                                        end
+                                                    end
+                                                end)
+                                            end
+                                        end
+                                    end
+                                end
+
+                                local died_checked = false;
+
+                                anchor_died_connection = game:GetService("RunService").Heartbeat:Connect(function()
+                                    if (died_checked == true) then return end;
+                                    died_checked = true;
+
+                                    if (not char or not char:FindFirstChildWhichIsA("Humanoid")) then
+                                        notify("Notification", "Stop fake lagging, because you died");
+                                        -- wait until respawned
+                                        task.wait(game:GetService("Players").RespawnTime + 0.5);
+                                        
+                                        FakeLagEnabled = false
+                                        settings():GetService("NetworkSettings").IncomingReplicationLag = 0
+                                        game:GetService("NetworkClient"):SetOutgoingKBPSLimit(math.huge)
+
+                                        -- Remove anchor loop
+                                        if (anchor_connection) then
+                                            anchor_connection:Disconnect();
+                                            anchor_connection = nil;
+                                        end
+
+                                        -- Remove character removal checker
+                                        if (anchor_died_connection) then
+                                            anchor_died_connection:Disconnect();
+                                            anchor_died_connection = nil;
+                                        end
+
+                                        -- Set camera to main character
+                                        for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                                            if (v and v.ClassName == "Model" and v:FindFirstChildWhichIsA("Humanoid") and v.Name == plr.Name) then
+                                                game:GetService("Workspace").CurrentCamera.CameraSubject = v:FindFirstChildWhichIsA("Humanoid");
+
+                                                -- Make Humanoid setting 
+                                                v:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.Died, true);
+
+                                                -- Change root anchor state
+                                                if (getRoot(v)) then
+                                                    getRoot(v).Anchored = false;
+                                                end
+                                            end
+                                        end
+
+                                        -- Fix character
+                                        if (char) then
+                                            for _, v in pairs(char:GetDescendants()) do
+                                                if (v and (v.ClassName == "Part" or v.ClassName == "MeshPart" or v.ClassName == "Decal") and v.Name ~= "HumanoidRootPart") then
+                                                    -- Make the player visible
+                                                    v.Transparency = 0;
+
+                                                    -- Make character touchable
+                                                    noclip(false, char);
+                                                end
+                                            end
+                                        end
+
+                                        -- Destroy fake cloned character
+                                        if (plr.Character) then
+                                            for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                                                if (v and v.ClassName == "Model" and v:FindFirstChildWhichIsA("Humanoid") and v.Name == plr.Name) then
+                                                    plr.Character = v;
+
+                                                    if (getRoot(v)) then
+                                                        getRoot(v).Anchored = false;
+                                                    end
+                                                end
+                                            end
+                                            for _1, v1 in pairs(game:GetService("Workspace"):GetDescendants()) do
+                                                if (v1 and v1.ClassName == "Model" and v1:FindFirstChildWhichIsA("Humanoid") and v1.Name == plr.Name .. "_c") then
+                                                    v1:Destroy();
+                                                end
+                                            end
+                                        end
+                                    end
+                                end)
 
                                 repE1 = false;
                             end
@@ -430,17 +613,31 @@ local Synnax = {
                 settings():GetService("NetworkSettings").IncomingReplicationLag = 0
                 game:GetService("NetworkClient"):SetOutgoingKBPSLimit(math.huge)
 
-                -- Set camera to main character
-                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
-                    if (v and v.ClassName == "Model" and v:FindFirstChildWhichIsA("Humanoid") and v.Name == plr.Name) then
-                        game:GetService("Workspace").CurrentCamera.CameraSubject = v:FindFirstChildWhichIsA("Humanoid");
-                    end
-                end
-
                 -- Remove anchor loop
                 if (anchor_connection) then
                     anchor_connection:Disconnect();
                     anchor_connection = nil;
+                end
+
+                -- Remove character removal checker
+                if (anchor_died_connection) then
+                    anchor_died_connection:Disconnect();
+                    anchor_died_connection = nil;
+                end
+
+                -- Set camera to main character
+                for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                    if (v and v.ClassName == "Model" and v:FindFirstChildWhichIsA("Humanoid") and v.Name == plr.Name) then
+                        game:GetService("Workspace").CurrentCamera.CameraSubject = v:FindFirstChildWhichIsA("Humanoid");
+
+                        -- Make Humanoid setting 
+                        v:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.Died, true);
+
+                        -- Change root anchor state
+                        if (getRoot(v)) then
+                            getRoot(v).Anchored = false;
+                        end
+                    end
                 end
 
                 -- Fix character
@@ -463,7 +660,7 @@ local Synnax = {
                             plr.Character = v;
 
                             if (getRoot(v)) then
-                                getRoot(v).Anchored = false
+                                getRoot(v).Anchored = false;
                             end
                         end
                     end
@@ -483,7 +680,7 @@ local Synnax = {
                 if args[1] then
                     notify("Notification", "This feature will add later!")
                 else
-                    notify("Notification", "You must write the remote event location")
+                    notify("Notification", "You must write the remote function location")
                 end
             end
         },
@@ -617,9 +814,9 @@ local Synnax = {
             end
         },
         ["Betterfling"] = {
-            ["ListName"] = "BetterFling / ffling [plr]",
+            ["ListName"] = "BetterFling / bfling / ffling [plr]",
             ["Description"] = "Fling player you want to!",
-            ["Aliases"] = {"BetterFling", "FastFling", "betterfling", "fastfling", "ffling"},
+            ["Aliases"] = {"BetterFling", "FastFling", "betterfling", "bfling", "fastfling", "ffling"},
             ["Function"] = function(args, speaker)
                 local flinging = false
                 function Fling(playerfling)
