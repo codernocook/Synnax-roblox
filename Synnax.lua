@@ -280,6 +280,15 @@ local Synnax = {
                                 end
                             end
 
+                            -- Set back old setting (like: walkspeed, jumppower, health, ...)
+                            if (plr and plr.Character and plr.Character:FindFirstChildWhichIsA("Humanoid") and second_char:FindFirstChildWhichIsA("Humanoid")) then
+                                second_char:FindFirstChildWhichIsA("Humanoid").WalkSpeed = plr.Character:FindFirstChildWhichIsA("Humanoid").WalkSpeed;
+                                second_char:FindFirstChildWhichIsA("Humanoid").JumpPower = plr.Character:FindFirstChildWhichIsA("Humanoid").JumpPower;
+                                second_char:FindFirstChildWhichIsA("Humanoid").JumpHeight = plr.Character:FindFirstChildWhichIsA("Humanoid").JumpHeight;
+                                second_char:FindFirstChildWhichIsA("Humanoid").Health = plr.Character:FindFirstChildWhichIsA("Humanoid").Health;
+                                second_char:FindFirstChildWhichIsA("Humanoid").MaxHealth = plr.Character:FindFirstChildWhichIsA("Humanoid").MaxHealth;
+                            end
+
                             -- Set client cloned character moving
                             plr.Character = second_char;
 
@@ -318,8 +327,8 @@ local Synnax = {
 
                         if (args and args[1] and tonumber(args[1]) and args[2] and tonumber(args[2])) then
                             if (tonumber(args[2]) <= tonumber(args[1])) then
-                                notify("Notification", "[delay1] must be > [delay]. Randomed:\n[delay]: 2 | delay[1]: 3.5")
-                                _time = math.random(2, 3.5)
+                                notify("Notification", "[delay1] must be > [delay]. Randomed:\n[delay]: 1 | delay[1]: 1.5")
+                                _time = math.random(1, 1.5)
                             else
                                 _time = math.random(tonumber(args[1]), tonumber(args[2]))
                             end
@@ -406,7 +415,7 @@ local Synnax = {
                             end
                         until FakeLagEnabled == false
                     else
-                        execCmd("fakelag 3.5");
+                        execCmd("fakelag 1 1.5");
                     end
                end)
             end
@@ -452,6 +461,10 @@ local Synnax = {
                     for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
                         if (v and v.ClassName == "Model" and v:FindFirstChildWhichIsA("Humanoid") and v.Name == plr.Name) then
                             plr.Character = v;
+
+                            if (getRoot(v)) then
+                                getRoot(v).Anchored = false
+                            end
                         end
                     end
                     for _1, v1 in pairs(game:GetService("Workspace"):GetDescendants()) do
