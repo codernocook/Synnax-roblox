@@ -26,6 +26,7 @@ local uis = game:GetService("UserInputService")
 local anchor_connection = nil;
 local anchor_died_connection = nil;
 local resettp_delay = 0;
+local infAuraEnabled = false;
 
 local badwordsreport = {
     ["gay"] = "Bullying",
@@ -1609,6 +1610,131 @@ local Synnax = {
                 end
             end
         },
+        ["infAura"] = {
+            ["ListName"] = "infAura [status:on/off]",
+            ["Description"] = "Make sure you have roblox tool on, and have handle (like sword)",
+            ["Aliases"] = {"infAura"},
+            ["Function"] = function(args, speaker) -- I get the idea from CMDx | their github: https://github.com/CMD-X/CMD-X
+                if (args and args[1] and tostring(args[1])) then
+                    if (tostring(args[1]):lower() == "on") then
+                        if (infAuraEnabled == true) then notify("Notification", "infAura already enabled/turned on") ; return ; end;
+                        infAuraEnabled = true;
+
+                        if (speaker and speaker:FindFirstChildWhichIsA("Backpack") and speaker.Character) then
+                            if (not speaker.Character:FindFirstChildWhichIsA("Tool")) then
+                                notify("Notification", "You must have a roblox tool in your character.")
+                                return; -- stop here because player don't have any tool in character
+                            else
+                                for _, v in pairs(speaker.Character:GetDescendants()) do
+                                    if (v:IsA("Tool") and v:FindFirstChild("Handle")) then
+                                        -- If the tool configuration exist, then do nothing
+                                        if (v:FindFirstChild("_toolSize_save_") and v:FindFirstChild("_toolGrip_save")) then
+                                            pcall(function()
+                                                v:FindFirstChild("_toolSize_save_"):Destroy();
+                                            end)
+                                            pcall(function()
+                                                v:FindFirstChild("_toolGrip_save"):Destroy();
+                                            end)
+                                        end
+
+                                        -- Save the tool size
+                                        local saveValue = Instance.new("Vector3Value");
+                                        local grip_saveValue = Instance.new("Vector3Value");
+
+                                        saveValue.Name = "_toolSize_save_";
+                                        saveValue.Value = v:FindFirstChild("Handle").Size;
+
+                                        grip_saveValue.Name = "_toolGrip_save";
+                                        grip_saveValue.Value = v.GripPos;
+
+                                        -- Set the tool save position
+                                        saveValue.Parent = v;
+                                        grip_saveValue.Parent = v;
+
+                                        -- Start cheating
+                                        v.Handle.Massless = true;
+                                        v.Handle.Size = Vector3.new(2^63-1, 2^63-1, 2^63-1);
+                                        v.GripPos = Vector3.new(0, 0, 0);
+
+                                        if (not speaker or not speaker:FindFirstChildWhichIsA("Backpack") or not speaker.Character) then return end; -- prevent another script affect the main script
+                                        v.Parent = speaker:FindFirstChildWhichIsA("Backpack");
+                                        v.Parent = speaker.Character;
+                                    end
+                                end
+
+                                -- Success, now ready
+                                notify("Notification", "infAura enabled.")
+                            end
+                        end
+                    elseif (tostring(args[1]):lower() == "off") then
+                        if (infAuraEnabled == false) then notify("Notification", "infAura already disabled/turned off") ; return ; end;
+                        infAuraEnabled = false;
+
+                        if (speaker and speaker:FindFirstChildWhichIsA("Backpack") and speaker.Character) then
+                            if (speaker:FindFirstChildWhichIsA("Backpack"):FindFirstChildWhichIsA("Tool")) then
+                                for _, v in pairs(speaker:FindFirstChildWhichIsA("Backpack"):GetDescendants()) do
+                                    pcall(function()
+                                        if (v:IsA("Tool")) then
+                                            if (v:FindFirstChild("_toolSize_save_") and v:FindFirstChild("_toolSize_save_").ClassName == "Vector3Value" and v:FindFirstChild("_toolGrip_save") and v:FindFirstChild("_toolGrip_save").ClassName == "Vector3Value") then
+                                                -- Set to the original value
+                                                v.Handle.Size = v:FindFirstChild("_toolSize_save_").Value;
+                                                v.GripPos = v:FindFirstChild("_toolGrip_save").Value;
+
+                                                -- Delete the saved value
+                                                pcall(function()
+                                                    if (v:FindFirstChild("_toolSize_save_")) then
+                                                        v:FindFirstChild("_toolSize_save_"):Destroy();
+                                                    end
+                                                end)
+
+                                                pcall(function()
+                                                    if (v:FindFirstChild("_toolGrip_save")) then
+                                                        v:FindFirstChild("_toolGrip_save"):Destroy();
+                                                    end
+                                                end)
+                                            end
+                                        end
+                                    end)
+                                end
+                            end
+                            if (speaker.Character:FindFirstChildWhichIsA("Tool")) then
+                                for _, v in pairs(speaker.Character:GetDescendants()) do
+                                    pcall(function()
+                                        if (v:IsA("Tool")) then
+                                            if (v:FindFirstChild("_toolSize_save_") and v:FindFirstChild("_toolSize_save_").ClassName == "Vector3Value" and v:FindFirstChild("_toolGrip_save") and v:FindFirstChild("_toolGrip_save").ClassName == "Vector3Value") then
+                                                -- Set to the original value
+                                                v.Handle.Size = v:FindFirstChild("_toolSize_save_").Value;
+                                                v.GripPos = v:FindFirstChild("_toolGrip_save").Value;
+
+                                                -- Delete the saved value
+                                                pcall(function()
+                                                    if (v:FindFirstChild("_toolSize_save_")) then
+                                                        v:FindFirstChild("_toolSize_save_"):Destroy();
+                                                    end
+                                                end)
+
+                                                pcall(function()
+                                                    if (v:FindFirstChild("_toolGrip_save")) then
+                                                        v:FindFirstChild("_toolGrip_save"):Destroy();
+                                                    end
+                                                end)
+                                            end
+                                        end
+                                    end)
+                                end
+                            end
+
+                            -- Success
+                            notify("Notification", "infAura disabled.")
+                        end
+                    elseif (tostring(args[1]):lower() ~= "off" and tostring(args[1]):lower() ~= "on") then
+                        notify("Notification", "the status must be `on` or `off`")
+                    end
+                else
+                    notify("Notification", "Missing arguments.")
+                end
+            end
+        }
     }
 }
 
