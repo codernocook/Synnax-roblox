@@ -1855,11 +1855,11 @@ local Synnax = {
 
                                                         if (tostring(args[3]) == "on" or tostring(args[3]) == "true") then
                                                             if (char and getRoot(char) and neartestPlayer_["player"] and neartestPlayer_["part"]) then
-                                                                getRoot(char).CFrame = neartestPlayer_["part"].CFrame * CFrame.new(math.random(1.45, 1.7), 0, math.random(1.45, 1.7));
+                                                                getRoot(char).CFrame = neartestPlayer_["part"].CFrame * CFrame.new(math.random(1, 1.5), -1, math.random(1, 1.5));
                                                             end
                                                         elseif (tostring(args[3]) == "off" or tostring(args[3]) == "false") then
                                                             if (char and getRoot(char) and neartestPlayer_["player"] and neartestPlayer_["player"].Team and neartestPlayer_["player"].Team ~= plr.Team and neartestPlayer_["part"]) then
-                                                                getRoot(char).CFrame = neartestPlayer_["part"].CFrame * CFrame.new(math.random(1.45, 1.7), 0, math.random(1.45, 1.7));
+                                                                getRoot(char).CFrame = neartestPlayer_["part"].CFrame * CFrame.new(math.random(1, 1.5), -1, math.random(1, 1.5));
                                                             end
                                                         end
 
@@ -1880,7 +1880,6 @@ local Synnax = {
                                                         if (speaker and speaker.Character and speaker.Character:FindFirstChildWhichIsA("Humanoid")) then
                                                             speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
                                                             speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
-                                                            speaker.Character:FindFirstChildWhichIsA("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping);
                                                         end
                                                     end)
                                                 end
