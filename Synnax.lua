@@ -1863,10 +1863,24 @@ local Synnax = {
                                                             end
                                                         end
 
-                                                        task.wait(1);
+                                                        task.wait(0.8);
+
+                                                        if (speaker and speaker.Character and speaker.Character:FindFirstChildWhichIsA("Humanoid")) then
+                                                            speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+                                                            speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
+                                                            speaker.Character:FindFirstChildWhichIsA("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping);
+                                                        end
 
                                                         if (char and getRoot(char)) then
                                                             getRoot(char).CFrame = old_hitCFrame;
+                                                        end
+
+                                                        task.wait(0.25)
+
+                                                        if (speaker and speaker.Character and speaker.Character:FindFirstChildWhichIsA("Humanoid")) then
+                                                            speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
+                                                            speaker.Character:FindFirstChildWhichIsA("Humanoid"):SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
+                                                            speaker.Character:FindFirstChildWhichIsA("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping);
                                                         end
                                                     end)
                                                 end
