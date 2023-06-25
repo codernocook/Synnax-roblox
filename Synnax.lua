@@ -27,6 +27,7 @@ local anchor_connection = nil;
 local anchor_died_connection = nil;
 local resettp_delay = 0;
 local infAuraEnabled = false;
+local boxReachEnabled = false;
 
 local badwordsreport = {
     ["gay"] = "Bullying",
@@ -115,6 +116,55 @@ end
 function getTorso(charget)
     local rootPart = charget:FindFirstChild('Torso') or charget:FindFirstChild('UpperTorso')
     return rootPart
+end
+
+function getLowest(table_)
+	local low = math.huge
+	local index
+
+	for i, v in pairs(table_) do
+		if (v["mag"] < 0) then v["mag"] = 0 - v["mag"] end;
+		if v["mag"] < low then
+			low = v["mag"]
+			index = i
+		end
+	end
+
+	return index;
+end
+
+local function nearestPlayer(dist_)
+	local obj_insert = {};
+
+	for _, v in pairs(game:GetService("Players"):GetPlayers()) do
+		if (v and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and getRoot(char)) then
+			local decide = getRoot(char).Position.Magnitude - v.Character:FindFirstChild("HumanoidRootPart").Position.Magnitude
+			if ((getRoot(char).Position.Magnitude - v.Character:FindFirstChild("HumanoidRootPart").Position.Magnitude) > tonumber(dist_)) then
+				decide = math.huge;
+			end
+
+            if (v ~= game:GetService("Players").LocalPlayer) then
+                table.insert(obj_insert, {
+                    ["player"] = v,
+                    ["mag"] = decide,
+                    ["part"] = v.Character:FindFirstChild("HumanoidRootPart")
+                })
+            end
+		end
+	end
+
+	local lowest = getLowest(obj_insert);
+
+	if (lowest and obj_insert and obj_insert[lowest] and obj_insert[lowest]["part"] and obj_insert[lowest]["part"].Position) then
+		-- return the value
+		return {
+            ["player"] = obj_insert[lowest]["player"],
+            ["part"] = obj_insert[lowest]["part"]
+        };
+	elseif (not lowest) then
+		-- yep no player found :( let's return nil
+		return { ["error"] = "error" };
+	end
 end
 
 local Clip = false;
@@ -1610,13 +1660,142 @@ local Synnax = {
                 end
             end
         },
+        ["boxReach"] = {
+            ["ListName"] = "boxReach [status:on/off]",
+            ["Description"] = "Make sure you have roblox tool on, and have handle (like sword), Make tool hit everyone in the workspace",
+            ["Aliases"] = {"boxReach"},
+            ["Function"] = function(args, speaker) -- I get the idea from CMDx | their github: https://github.com/CMD-X/CMD-X
+                if (args and args[1] and tostring(args[1])) then
+                    if (tostring(args[1]):lower() == "on") then
+                        if (infAuraEnabled == true) then notify("Notification", "infAura already enabled/turned on. You must turn off to use") ; return ; end;
+                        if (boxReachEnabled == true) then notify("Notification", "boxReach already enabled/turned on.") ; return ; end;
+                        boxReachEnabled = true;
+
+                        if (speaker and speaker:FindFirstChildWhichIsA("Backpack") and speaker.Character) then
+                            if (not speaker.Character:FindFirstChildWhichIsA("Tool")) then
+                                notify("Notification", "You must have a roblox tool in your character.")
+                                return; -- stop here because player don't have any tool in character
+                            else
+                                for _, v in pairs(speaker.Character:GetDescendants()) do
+                                    if (v:IsA("Tool") and v:FindFirstChild("Handle")) then
+                                        -- If the tool configuration exist, then do nothing
+                                        if (v:FindFirstChild("_toolSize_save_") and v:FindFirstChild("_toolGrip_save")) then
+                                            pcall(function()
+                                                v:FindFirstChild("_toolSize_save_box"):Destroy();
+                                            end)
+                                            pcall(function()
+                                                v:FindFirstChild("_toolGrip_saveBox"):Destroy();
+                                            end)
+                                        end
+
+                                        -- Save the tool size
+                                        local saveValue = Instance.new("Vector3Value");
+                                        local grip_saveValue = Instance.new("Vector3Value");
+
+                                        saveValue.Name = "_toolSize_save_box";
+                                        saveValue.Value = v:FindFirstChild("Handle").Size;
+
+                                        grip_saveValue.Name = "_toolGrip_saveBox";
+                                        grip_saveValue.Value = v.GripPos;
+
+                                        -- Set the tool save position
+                                        saveValue.Parent = v;
+                                        grip_saveValue.Parent = v;
+
+                                        -- Start cheating
+                                        v.Handle.Massless = true;
+                                        v.Handle.Size = Vector3.new(2^63-1, 2^63-1, 2^63-1);
+                                        v.GripPos = Vector3.new(0, 0, 0);
+
+                                        if (not speaker or not speaker:FindFirstChildWhichIsA("Backpack") or not speaker.Character) then return end; -- prevent another script affect the main script
+                                        v.Parent = speaker:FindFirstChildWhichIsA("Backpack");
+                                        v.Parent = speaker.Character;
+                                    end
+                                end
+
+                                -- Success, now ready
+                                notify("Notification", "boxReach enabled.")
+                            end
+                        end
+                    elseif (tostring(args[1]):lower() == "off") then
+                        if (infAuraEnabled == true) then notify("Notification", "infAura already enabled/turned on. You must turn off to use") ; return ; end;
+                        if (boxReachEnabled == false) then notify("Notification", "boxReach already enabled/turned on.") ; return ; end;
+                        boxReachEnabled = false;
+
+                        if (speaker and speaker:FindFirstChildWhichIsA("Backpack") and speaker.Character) then
+                            if (speaker:FindFirstChildWhichIsA("Backpack"):FindFirstChildWhichIsA("Tool")) then
+                                for _, v in pairs(speaker:FindFirstChildWhichIsA("Backpack"):GetDescendants()) do
+                                    pcall(function()
+                                        if (v:IsA("Tool")) then
+                                            if (v:FindFirstChild("_toolSize_save_box") and v:FindFirstChild("_toolSize_save_").ClassName == "Vector3Value" and v:FindFirstChild("_toolGrip_save") and v:FindFirstChild("_toolGrip_save").ClassName == "Vector3Value") then
+                                                -- Set to the original value
+                                                v.Handle.Size = v:FindFirstChild("_toolSize_save_box").Value;
+                                                v.GripPos = v:FindFirstChild("_toolGrip_saveBox").Value;
+
+                                                -- Delete the saved value
+                                                pcall(function()
+                                                    if (v:FindFirstChild("_toolSize_save_box")) then
+                                                        v:FindFirstChild("_toolSize_save_box"):Destroy();
+                                                    end
+                                                end)
+
+                                                pcall(function()
+                                                    if (v:FindFirstChild("_toolGrip_saveBox")) then
+                                                        v:FindFirstChild("_toolGrip_saveBox"):Destroy();
+                                                    end
+                                                end)
+                                            end
+                                        end
+                                    end)
+                                end
+                            end
+                            if (speaker.Character:FindFirstChildWhichIsA("Tool")) then
+                                for _, v in pairs(speaker.Character:GetDescendants()) do
+                                    pcall(function()
+                                        if (v:IsA("Tool")) then
+                                            if (v:FindFirstChild("_toolSize_save_") and v:FindFirstChild("_toolSize_save_").ClassName == "Vector3Value" and v:FindFirstChild("_toolGrip_save") and v:FindFirstChild("_toolGrip_save").ClassName == "Vector3Value") then
+                                                -- Set to the original value
+                                                v.Handle.Size = v:FindFirstChild("_toolSize_save_").Value;
+                                                v.GripPos = v:FindFirstChild("_toolGrip_save").Value;
+
+                                                -- Delete the saved value
+                                                pcall(function()
+                                                    if (v:FindFirstChild("_toolSize_save_box")) then
+                                                        v:FindFirstChild("_toolSize_save_box"):Destroy();
+                                                    end
+                                                end)
+
+                                                pcall(function()
+                                                    if (v:FindFirstChild("_toolGrip_saveBox")) then
+                                                        v:FindFirstChild("_toolGrip_saveBox"):Destroy();
+                                                    end
+                                                end)
+                                            end
+                                        end
+                                    end)
+                                end
+                            end
+
+                            -- Success
+                            notify("Notification", "boxreach disabled.")
+                        end
+                    elseif (tostring(args[1]):lower() ~= "off" and tostring(args[1]):lower() ~= "on") then
+                        notify("Notification", "the status must be `on` or `off`")
+                    end
+                else
+                    notify("Notification", "Missing arguments.")
+                end
+            end
+        },
         ["infAura"] = {
-            ["ListName"] = "infAura [status:on/off]",
-            ["Description"] = "Make sure you have roblox tool on, and have handle (like sword)",
+            ["ListName"] = "infAura [status:on/off] [distance:number] [team:boolean true/false]",
+            ["Description"] = "Make sure you have roblox tool on, and have handle (like sword), teleport + boxreach",
             ["Aliases"] = {"infAura"},
             ["Function"] = function(args, speaker) -- I get the idea from CMDx | their github: https://github.com/CMD-X/CMD-X
                 if (args and args[1] and tostring(args[1])) then
                     if (tostring(args[1]):lower() == "on") then
+                        if (not args[2] or not tonumber(args[2]) or not args[3] or not tostring(args[3])) then return end;
+                        if (boxReachEnabled == true) then notify("Notification", "infAura already enabled/turned on off. You must turn off to use") ; return ; end;
                         if (infAuraEnabled == true) then notify("Notification", "infAura already enabled/turned on") ; return ; end;
                         infAuraEnabled = true;
 
@@ -1653,8 +1832,51 @@ local Synnax = {
 
                                         -- Start cheating
                                         v.Handle.Massless = true;
-                                        v.Handle.Size = Vector3.new(2^63-1, 2^63-1, 2^63-1);
+                                        v.Handle.Size = Vector3.new(10, 10, 10);
                                         v.GripPos = Vector3.new(0, 0, 0);
+
+                                        -- Hit detecting
+                                        local remove_hitDetecting = nil;
+                                        remove_hitDetecting = v.Activated:Connect(function()
+                                            if (v and v:FindFirstChild("_toolSize_save_") and v:FindFirstChild("_toolGrip_save")) then
+                                                -- Make sure the owner is the main player
+                                                if (v and v.Parent and game:GetService("Players"):GetPlayerFromCharacter(v.Parent) and game:GetService("Players"):GetPlayerFromCharacter(v.Parent) == game:GetService("Players").LocalPlayer) then
+                                                    local neartestPlayer_ = nearestPlayer(tonumber(args[2]));
+                                                    repeat task.wait() until neartestPlayer_;
+                                                    
+                                                    if (neartestPlayer_["error"]) then return end;
+
+                                                    task.spawn(function()
+                                                        local old_hitCFrame = CFrame.new(0, 0, 0);
+
+                                                        if (char and getRoot(char)) then
+                                                            old_hitCFrame = getRoot(char).CFrame;
+                                                        end
+
+                                                        if (tostring(args[3]) == "on" or tostring(args[3]) == "true") then
+                                                            if (char and getRoot(char) and neartestPlayer_["player"] and neartestPlayer_["part"]) then
+                                                                getRoot(char).CFrame = neartestPlayer_["part"].CFrame * CFrame.new(math.random(1.45, 1.7), 0, math.random(1.45, 1.7));
+                                                            end
+                                                        elseif (tostring(args[3]) == "off" or tostring(args[3]) == "false") then
+                                                            if (char and getRoot(char) and neartestPlayer_["player"] and neartestPlayer_["player"].Team and neartestPlayer_["player"].Team ~= plr.Team and neartestPlayer_["part"]) then
+                                                                getRoot(char).CFrame = neartestPlayer_["part"].CFrame * CFrame.new(math.random(1.45, 1.7), 0, math.random(1.45, 1.7));
+                                                            end
+                                                        end
+
+                                                        task.wait(1);
+
+                                                        if (char and getRoot(char)) then
+                                                            getRoot(char).CFrame = old_hitCFrame;
+                                                        end
+                                                    end)
+                                                end
+                                            else
+                                                if (remove_hitDetecting) then
+                                                    remove_hitDetecting:Disconnect();
+                                                    remove_hitDetecting = nil;
+                                                end
+                                            end
+                                        end)
 
                                         if (not speaker or not speaker:FindFirstChildWhichIsA("Backpack") or not speaker.Character) then return end; -- prevent another script affect the main script
                                         v.Parent = speaker:FindFirstChildWhichIsA("Backpack");
@@ -1667,6 +1889,7 @@ local Synnax = {
                             end
                         end
                     elseif (tostring(args[1]):lower() == "off") then
+                        if (boxReachEnabled == true) then notify("Notification", "infAura already enabled/turned on off. You must turn off to use") ; return ; end;
                         if (infAuraEnabled == false) then notify("Notification", "infAura already disabled/turned off") ; return ; end;
                         infAuraEnabled = false;
 
