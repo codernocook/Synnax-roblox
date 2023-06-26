@@ -1031,17 +1031,17 @@ local Synnax = {
                                     antiflingout.Velocity = Vector3.new(0, -100, 0)
                                     getRoot(speaker.Character).Anchored = true
                                     getRoot(speaker.Character).CFrame = OldCFrameBeforeRun
-                                    task.wait(.5)
+                                    task.wait(.8)
                                     noclip(false)
                                     getRoot(speaker.Character).Anchored = false
                                     getRoot(speaker.Character).CFrame = OldCFrameBeforeRun
-                                    task.wait(.2)
+                                    task.wait(.5)
                                     antiflingout.MaxForce = Vector3.new(9e9, 9e9, 9e9)
                                     if antiflingout then
                                         antiflingout:Destroy()
                                     end
                                     getRoot(speaker.Character).CFrame = OldCFrameBeforeRun
-                                    task.wait(.1)
+                                    task.wait(1)
                                     if (antiflingout_method1) then
                                         antiflingout_method1:Destroy()
                                     end
