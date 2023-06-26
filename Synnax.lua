@@ -1035,15 +1035,20 @@ local Synnax = {
                                     noclip(false)
                                     getRoot(speaker.Character).Anchored = false
                                     getRoot(speaker.Character).CFrame = OldCFrameBeforeRun
-                                    task.wait(.6)
+                                    task.wait(.2)
                                     antiflingout.MaxForce = Vector3.new(9e9, 9e9, 9e9)
                                     if antiflingout then
                                         antiflingout:Destroy()
                                     end
                                     getRoot(speaker.Character).CFrame = OldCFrameBeforeRun
-                                    task.wait(1)
+                                    task.wait(.1)
                                     if (antiflingout_method1) then
                                         antiflingout_method1:Destroy()
+                                    end
+                                    getRoot(speaker.Character).CFrame = OldCFrameBeforeRun
+                                    if (speaker and speaker.Character) then
+                                        speaker.Character.PrimaryPart.AssemblyAngularVelocity = Vector3.new(0, 0, 0);
+                                        speaker.Character.PrimaryPart.AssemblyLinearVelocity = Vector3.new(0, 0, 0);
                                     end
                                     getRoot(speaker.Character).CFrame = OldCFrameBeforeRun
                                 end
@@ -1968,6 +1973,20 @@ local Synnax = {
                     end
                 else
                     notify("Notification", "Missing arguments.")
+                end
+            end
+        },
+        ["noChatLog"] = {
+            ["ListName"] = "noChatlog/acl [on/off]",
+            ["Description"] = "Prevent you banned of Roblox for saying bad words. They log your client chat",
+            ["Aliases"] = {"noChatlog", "nchl", "antiChatlog", "acl"},
+            ["Function"] = function(args, speaker)
+                if (setfflag) then
+                    -- prevent logging screenshot
+                    setfflag("AbuseReportScreenshot", "False")
+                    setfflag("AbuseReportScreenshotPercentage", "0")
+
+                    -- 
                 end
             end
         }
