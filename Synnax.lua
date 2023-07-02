@@ -248,7 +248,7 @@ end)
 
 local Synnax = {
     ["PluginName"] = "Synnax",
-    ["PluginDescription"] = "Admin Fe script!",
+    ["PluginDescription"] = "Admin Fe script!\n Made by Itzporium#9655",
     ["Commands"] = {
         ["ResetBack"] = {
             ["ListName"] = "ResetBack / reback",
